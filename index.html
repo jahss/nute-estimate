@@ -287,6 +287,8 @@ h1{font-family:var(--serif);font-optical-sizing:auto;font-size:clamp(40px,6vw,64
 .lede-in{font:inherit;color:var(--ink);background:transparent;border:none;border-bottom:2px dashed var(--line-2);padding:0 2px;min-width:2ch;text-align:center}
 .lede-in:focus{outline:none;border-bottom-color:var(--rust);border-bottom-style:solid}
 .unit-cap{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;text-align:right}
+.unit-groups{display:flex;gap:12px 18px;align-items:flex-end;flex-wrap:wrap}
+.unit-groups .unit-cap{text-align:left}
 .seg{display:inline-flex}
 .seg button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;background:transparent;border:1px solid var(--ink);color:var(--ink);cursor:pointer;margin-left:-1px;transition:background .15s,color .15s}
 .seg button:first-child{margin-left:0}
@@ -330,7 +332,10 @@ td.empty{font-family:var(--serif);font-style:italic;color:var(--ink-3);padding:2
 .in-num:focus{outline:none;border-bottom-color:var(--rust);border-bottom-style:solid}
 .in-rate{width:6.5ch;text-align:right}
 .in-start,.in-end{width:4.5ch;text-align:center}
-.c-rate .unit-note{font-size:11px;color:var(--ink-3);margin-left:8px}
+.c-rate{min-width:154px}
+.rate-edit{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px}
+.in-kind{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:transparent;border:none;border-bottom:1px dashed var(--line-2);padding:2px 0;cursor:pointer}
+.in-kind:focus{outline:none;border-bottom-color:var(--rust);border-bottom-style:solid}
 .c-win .dash{color:var(--ink-3);margin:0 6px}
 .days-val{font-size:13px;font-weight:500}
 .days-note{display:block;font-size:10px;color:var(--rust);letter-spacing:.04em}
@@ -433,7 +438,7 @@ tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font
   .unit-cap{text-align:left}
   .seg{max-width:100%;flex-wrap:wrap}
   .seg button,.btn,.nav-btn,.del{min-height:44px;touch-action:manipulation}
-  .lede-in,.in-name,.in-num{font-size:16px}
+  .lede-in,.in-name,.in-num,.in-kind{font-size:16px}
   section{margin-top:38px}
   .sec-head{gap:10px;margin-bottom:14px}
   .scroll-x{max-width:100%;margin:0 -12px;padding:0 12px;overscroll-behavior-x:contain}
@@ -498,7 +503,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
     <div>
       <div class="eyebrow">Hydroponic feed planning · Worksheet no. 001</div>
       <h1>Nutrient Batch Ledger</h1>
-      <p class="mast-sub">Dry-fertilizer requirements figured from reservoir volume, per-gallon dosing rates and application windows.</p>
+      <p class="mast-sub">Nutrient requirements figured from reservoir volume, per-gallon dosing rates and application windows.</p>
     </div>
     <svg class="stamp" viewBox="0 0 130 130" aria-hidden="true">
       <defs><path id="stampArc" d="M65 65 m -46 0 a 46 46 0 1 1 92 0 a 46 46 0 1 1 -92 0"></path></defs>
@@ -517,10 +522,18 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <input id="galIn" class="lede-in" type="number" min="0" step="1" value="300" aria-label="Gallons of solution per day" style="width: 3ch;"> gallons of solution per day,
       the cycle turns over <b id="totalGalFig">18,900</b> gallons across <b id="phaseFig">4</b> distinct feed phases.
     </p>
-    <div>
-      <div class="unit-cap">Display unit</div>
-      <div class="seg" id="unitSeg">
-        <button data-u="g" class="on">g</button><button data-u="kg">kg</button><button data-u="lb">lb</button><button data-u="oz">oz</button>
+    <div class="unit-groups">
+      <div>
+        <div class="unit-cap">Dry total</div>
+        <div class="seg" id="dryUnitSeg">
+          <button data-u="g" class="on">g</button><button data-u="kg">kg</button><button data-u="lb">lb</button><button data-u="oz">oz</button>
+        </div>
+      </div>
+      <div>
+        <div class="unit-cap">Liquid total</div>
+        <div class="seg" id="liquidUnitSeg">
+          <button data-u="ml" class="on">mL</button><button data-u="l">L</button><button data-u="gal">gal</button><button data-u="floz">fl oz</button>
+        </div>
       </div>
     </div>
   </section>
@@ -609,7 +622,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
   <section>
     <div class="sec-head">
       <span class="sec-num">03</span><h2>Batching phases</h2><span class="sec-rule"></span>
-      <span class="sec-hint">amounts to weigh per phase</span>
+      <span class="sec-hint">amounts to measure per phase</span>
     </div>
     <div class="scroll-x">
       <table id="phaseTable"><thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th><th class="r"><span class="sw sw-sm" style="background:#2F6B3F"></span>A</th><th class="r"><span class="sw sw-sm" style="background:#B4552D"></span>B</th><th class="r"><span class="sw sw-sm" style="background:#8F6E14"></span>V 活力</th><th class="r"><span class="sw sw-sm" style="background:#2C5A63"></span>F 强化</th><th class="r"><span class="sw sw-sm" style="background:#6D3B52"></span>R 修复</th></tr></thead><tbody><tr><td class="ph-num">I</td><td class="ph-days">1–14</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="r">840 g</td></tr><tr><td class="ph-num">II</td><td class="ph-days">15–41</td><td class="r">27 d</td><td class="r">8,100 gal</td><td class="r">48,600 g</td><td class="r">24,300 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr><tr><td class="ph-num">III</td><td class="ph-days">42–49</td><td class="r">8 d</td><td class="r">2,400 gal</td><td class="r">14,400 g</td><td class="r">7,200 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="off">·</td></tr><tr><td class="ph-num">IV</td><td class="ph-days">50–63</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr></tbody><tfoot><tr><td colspan="3" class="r">Total</td><td class="r">18,900 gal</td><td class="r">113,400 g</td><td class="r">56,700 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="r">840 g</td></tr></tfoot></table>
@@ -618,7 +631,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
 
   <footer class="tally">
     <div>
-      <div class="tally-cap">Grand total — all dry nutrients</div>
+      <div class="tally-cap">Grand total — all nutrients</div>
       <div class="tally-sub" id="tallySub">across the full 63-day cycle · 5 of 5 nutrients active</div>
     </div>
     <div class="tally-right">
@@ -631,7 +644,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
     </button>
   </footer>
   <div class="rule-tt2"></div>
-  <div class="fineprint">All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · assumes constant daily volume</div>
+  <div class="fineprint">All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · 1 US gal = 3,785.412 mL · assumes constant daily volume</div>
 
 </div>
 
@@ -643,17 +656,18 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
 const $ = (s, c=document) => c.querySelector(s);
 const PALETTE = ['#2F6B3F','#B4552D','#8F6E14','#2C5A63','#6D3B52','#6B4A2B','#57603A','#7A3B2E'];
 const LB = 453.59237, OZ = 28.3495231;
+const ML_PER_L = 1000, ML_PER_GAL = 3785.411784, ML_PER_FLOZ = 29.5735295625;
 let _uid = 0; const uid = () => ++_uid;
 
 /* ---------------- state (your schedule as defaults) ---------------- */
 const state = {
-  days: 63, gal: 300, unit: 'g', pinned: 1,
+  days: 63, gal: 300, dryUnit: 'g', liquidUnit: 'ml', pinned: 1,
   nutrients: [
-    {id:uid(), name:'A', rate:6, start:1,  end:63, color:PALETTE[0]},
-    {id:uid(), name:'B', rate:3, start:1,  end:63, color:PALETTE[1]},
-    {id:uid(), name:'V 活力', rate:1, start:1,  end:42, color:PALETTE[2]},
-    {id:uid(), name:'F 强化', rate:1, start:1,  end:42, color:PALETTE[3]},
-    {id:uid(), name:'R 修复', rate:0.2, start:43, end:63, color:PALETTE[4]},
+    {id:uid(), name:'A', rate:6, kind:'dry', start:1,  end:63, color:PALETTE[0]},
+    {id:uid(), name:'B', rate:3, kind:'dry', start:1,  end:63, color:PALETTE[1]},
+    {id:uid(), name:'V 活力', rate:1, kind:'dry', start:1,  end:42, color:PALETTE[2]},
+    {id:uid(), name:'F 强化', rate:1, kind:'dry', start:1,  end:42, color:PALETTE[3]},
+    {id:uid(), name:'R 修复', rate:0.2, kind:'dry', start:43, end:63, color:PALETTE[4]},
   ]
 };
 let animateNext = true;
@@ -668,12 +682,34 @@ const fmtGal = () => fmt(state.gal, state.gal%1 ? 1 : 0);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const h = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
 
-function fmtU(g){ /* format grams in the selected display unit */
+const fmtML = ml => !isFinite(ml) ? '—' : fmt(ml, ml>=100 ? 0 : (Math.abs(ml%1)>1e-9 ? 2 : 0)) + ' mL';
+const kindOf = n => n.kind === 'liquid' ? 'liquid' : 'dry';
+const rateUnit = n => kindOf(n) === 'liquid' ? 'mL/gal' : 'g/gal';
+
+function fmtDry(g){
   if (!isFinite(g)) return '—';
-  if (state.unit === 'g')  return fmtG(g);
-  if (state.unit === 'kg') return fmt(g/1000, g/1000 >= 100 ? 1 : 2) + ' kg';
-  if (state.unit === 'lb') return fmt(g/LB, 2) + ' lb';
+  if (state.dryUnit === 'g')  return fmtG(g);
+  if (state.dryUnit === 'kg') return fmt(g/1000, g/1000 >= 100 ? 1 : 2) + ' kg';
+  if (state.dryUnit === 'lb') return fmt(g/LB, 2) + ' lb';
   return fmt(g/OZ, 1) + ' oz';
+}
+function fmtLiquid(ml){
+  if (!isFinite(ml)) return '—';
+  if (state.liquidUnit === 'ml')   return fmtML(ml);
+  if (state.liquidUnit === 'l')    return fmt(ml/ML_PER_L, ml/ML_PER_L >= 100 ? 1 : 2) + ' L';
+  if (state.liquidUnit === 'gal')  return fmt(ml/ML_PER_GAL, 2) + ' gal';
+  return fmt(ml/ML_PER_FLOZ, 1) + ' fl oz';
+}
+const fmtAmount = (n, amount) => kindOf(n) === 'liquid' ? fmtLiquid(amount) : fmtDry(amount);
+function totalsByKind(items, amountOf){
+  let dry = 0, liquid = 0, hasDry = false, hasLiquid = false;
+  items.forEach(n => {
+    const amount = amountOf(n);
+    if (!isFinite(amount)) return;
+    if (kindOf(n) === 'liquid'){ liquid += amount; hasLiquid = true; }
+    else { dry += amount; hasDry = true; }
+  });
+  return {dry, liquid, hasDry, hasLiquid};
 }
 function roman(n){
   const m = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
@@ -696,7 +732,7 @@ function rowTotal(n){
   return w.ok ? num(n.rate) * state.gal * w.days : NaN;
 }
 const validNutrients = () => state.nutrients.filter(n => windowOf(n).ok);
-const grandTotal = () => state.nutrients.reduce((a,n) => a + (isFinite(rowTotal(n)) ? rowTotal(n) : 0), 0);
+const totalForKind = kind => state.nutrients.reduce((a,n) => kindOf(n) === kind && isFinite(rowTotal(n)) ? a + rowTotal(n) : a, 0);
 const dayMix = d => validNutrients().filter(n => { const w = windowOf(n); return d >= w.s && d <= w.e; });
 
 /* phases = maximal day ranges during which the active nutrient set doesn't change */
@@ -750,7 +786,7 @@ function rebuildRegister(){
     tr.innerHTML = `
       <td class="c-name"><span class="name-flex"><span class="sw" style="background:${n.color}"></span>
         <input class="in-name" value="${esc(n.name)}" maxlength="18" aria-label="Nutrient name"></span></td>
-      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="${n.rate}" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-rate r"><span class="rate-edit"><input class="in-num in-rate" type="number" min="0" step="0.1" value="${n.rate}" aria-label="Rate per gallon"><select class="in-kind" aria-label="Rate unit"><option value="dry"${kindOf(n)==='dry'?' selected':''}>g/gal</option><option value="liquid"${kindOf(n)==='liquid'?' selected':''}>mL/gal</option></select></span></td>
       <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="${n.start}" aria-label="Start day">
         <span class="dash">–</span>
         <input class="in-num in-end" type="number" min="1" step="1" value="${n.end}" aria-label="End day"></td>
@@ -761,6 +797,7 @@ function rebuildRegister(){
     regBody.appendChild(tr);
     $('.in-name', tr).addEventListener('input', e => { n.name = e.target.value; scheduleRefresh(); });
     $('.in-rate', tr).addEventListener('input', e => { n.rate = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+    $('.in-kind', tr).addEventListener('change', e => { n.kind = e.target.value; scheduleRefresh(); });
     $('.in-start',tr).addEventListener('input', e => { n.start = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
     $('.in-end', tr).addEventListener('input', e => { n.end = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
     $('.del', tr).addEventListener('click', () => {
@@ -789,15 +826,21 @@ function updateRowOutputs(){
       const rs = num(n.start), re = num(n.end);
       dv.textContent = w.days + ' d';
       dn.textContent = (rs < 1 || re > state.days) ? 'clamped to cycle' : '';
-      tot.textContent = fmtU(t);
-      sub.textContent = state.unit === 'g' ? '≈ ' + fmt(t/LB, 1) + ' lb' : '= ' + fmtG(t);
+      tot.textContent = fmtAmount(n, t);
+      if (kindOf(n) === 'liquid'){
+        sub.textContent = state.liquidUnit === 'ml'
+          ? '≈ ' + fmt(t/ML_PER_L, 2) + ' L · ' + fmt(t/ML_PER_GAL, 2) + ' gal'
+          : '= ' + fmtML(t);
+      } else {
+        sub.textContent = state.dryUnit === 'g' ? '≈ ' + fmt(t/LB, 1) + ' lb' : '= ' + fmtG(t);
+      }
     }
   });
 }
  $('#addBtn').addEventListener('click', () => {
   const usedC = new Set(state.nutrients.map(n => n.color));
   const color = PALETTE.find(c => !usedC.has(c)) || PALETTE[state.nutrients.length % PALETTE.length];
-  state.nutrients.push({ id: uid(), name: nextName(), rate: 1, start: 1, end: state.days, color });
+  state.nutrients.push({ id: uid(), name: nextName(), rate: 1, kind: 'dry', start: 1, end: state.days, color });
   rebuildRegister(); animateNext = true; scheduleRefresh();
   const tr = regBody.lastElementChild; if (tr) $('.in-name', tr).focus();
 });
@@ -852,7 +895,7 @@ function renderTimeline(){
       bar.style.left = ((w.s - 1) / D * 100) + '%';
       bar.style.width = ((w.e - w.s + 1) / D * 100) + '%';
       bar.style.setProperty('--i', i);
-      const bl = h('span','tl-bar-label'); bl.textContent = trimNum(num(n.rate)) + ' g/gal';
+      const bl = h('span','tl-bar-label'); bl.textContent = trimNum(num(n.rate)) + ' ' + rateUnit(n);
       bar.appendChild(bl);
       track.appendChild(bar);
     }
@@ -921,7 +964,7 @@ function showTip(d, x, y){
   const mix = dayMix(d);
   let html = `<div class="tip-h">Day ${d} · ${fmtGal()} gal</div>`;
   html += mix.length
-    ? mix.map(n => `<div class="tip-r"><span class="dot" style="background:${n.color}"></span>${esc(n.name||'?')}<span class="tip-amt">${fmtG(num(n.rate) * state.gal)}</span></div>`).join('')
+    ? mix.map(n => `<div class="tip-r"><span class="dot" style="background:${n.color}"></span>${esc(n.name||'?')}<span class="tip-amt">${fmtAmount(n, num(n.rate) * state.gal)}</span></div>`).join('')
     : '<div class="tip-e">no nutrients active</div>';
   tipEl.innerHTML = html; tipEl.style.display = 'block';
   const tw = tipEl.offsetWidth, thh = tipEl.offsetHeight;
@@ -964,12 +1007,15 @@ function renderDayCard(){
       <button class="nav-btn" id="dayNext" aria-label="Next day"${d >= state.days ? ' disabled' : ''}>${SVG_R}</button>
     </div><div class="dc-mix">`;
   html += mix.length
-    ? mix.map(n => `<span class="dc-chip"><span class="sw" style="background:${n.color}"></span><b>${esc(n.name||'?')}</b> ${trimNum(num(n.rate))} g/gal × ${fmtGal()} gal <span class="dc-amt">${fmtG(num(n.rate) * state.gal)}</span></span>`).join('')
+    ? mix.map(n => `<span class="dc-chip"><span class="sw" style="background:${n.color}"></span><b>${esc(n.name||'?')}</b> ${trimNum(num(n.rate))} ${rateUnit(n)} × ${fmtGal()} gal <span class="dc-amt">${fmtAmount(n, num(n.rate) * state.gal)}</span></span>`).join('')
     : '<span class="dc-none">nothing dosed this day</span>';
   html += '</div>';
   if (mix.length){
-    const t = mix.reduce((a,n) => a + num(n.rate) * state.gal, 0);
-    html += `<div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">${fmtU(t)}</span></div>`;
+    const totals = totalsByKind(mix, n => num(n.rate) * state.gal);
+    const parts = [];
+    if (totals.hasDry) parts.push('Dry ' + fmtDry(totals.dry));
+    if (totals.hasLiquid) parts.push('Liquid ' + fmtLiquid(totals.liquid));
+    html += `<div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">${parts.join(' · ')}</span></div>`;
   }
   dc.innerHTML = html;
   const pv = $('#dayPrev'), nx = $('#dayNext');
@@ -990,7 +1036,7 @@ function renderPhases(){
       html += `<tr><td class="ph-num">${roman(i+1)}</td><td class="ph-days">${p.s}–${p.e}</td><td class="r">${p.e - p.s + 1} d</td><td class="r">${fmt((p.e - p.s + 1) * state.gal, 0)} gal</td>`;
       nuts.forEach(n => {
         html += p.act.includes(n)
-          ? `<td class="r">${fmtU(num(n.rate) * state.gal * (p.e - p.s + 1))}</td>`
+          ? `<td class="r">${fmtAmount(n, num(n.rate) * state.gal * (p.e - p.s + 1))}</td>`
           : '<td class="off">·</td>';
       });
       html += '</tr>';
@@ -1000,7 +1046,7 @@ function renderPhases(){
   if (nuts.length && ph.length){
     html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">' + fmt(state.days * state.gal, 0) + ' gal</td>';    nuts.forEach(n => {
       const tt = rowTotal(n);
-      html += isFinite(tt) ? `<td class="r">${fmtU(tt)}</td>` : '<td class="off">·</td>';
+      html += isFinite(tt) ? `<td class="r">${fmtAmount(n, tt)}</td>` : '<td class="off">·</td>';
     });
     html += '</tr></tfoot>';
   }
@@ -1009,9 +1055,20 @@ function renderPhases(){
 
 /* ---------------- tally ---------------- */
 function renderTally(){
-  const g = grandTotal();
-  $('#tallyFig').textContent = fmtU(g);
-  $('#tallyEquiv').textContent = `= ${fmtG(g)} · ${fmt(g/LB, 2)} lb`;
+  const dry = totalForKind('dry'), liquid = totalForKind('liquid');
+  const hasDry = state.nutrients.some(n => kindOf(n) === 'dry');
+  const hasLiquid = state.nutrients.some(n => kindOf(n) === 'liquid');
+  const main = [], equiv = [];
+  if (hasDry){
+    main.push('Dry ' + fmtDry(dry));
+    equiv.push('Dry = ' + fmtG(dry) + ' · ' + fmt(dry/LB, 2) + ' lb');
+  }
+  if (hasLiquid){
+    main.push('Liquid ' + fmtLiquid(liquid));
+    equiv.push('Liquid = ' + fmtML(liquid) + ' · ' + fmt(liquid/ML_PER_L, 2) + ' L · ' + fmt(liquid/ML_PER_GAL, 2) + ' gal');
+  }
+  $('#tallyFig').textContent = main.length ? main.join(' · ') : '—';
+  $('#tallyEquiv').textContent = equiv.join('   |   ');
   $('#tallySub').textContent = `across the full ${state.days}-day cycle · ${validNutrients().length} of ${state.nutrients.length} nutrients active`;
 }
 
@@ -1028,12 +1085,16 @@ galIn.addEventListener('input', () => {
   const v = num(galIn.value);
   if (isFinite(v) && v >= 0){ state.gal = v; scheduleRefresh(); }
 });
- $('#unitSeg').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  state.unit = b.dataset.u;
-  [...$('#unitSeg').children].forEach(x => x.classList.toggle('on', x === b));
-  refresh();
-});
+function wireUnitSeg(id, key){
+  $(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    state[key] = b.dataset.u;
+    [...$(id).children].forEach(x => x.classList.toggle('on', x === b));
+    refresh();
+  });
+}
+wireUnitSeg('#dryUnitSeg', 'dryUnit');
+wireUnitSeg('#liquidUnitSeg', 'liquidUnit');
 
 /* ---------------- copy summary & toast ---------------- */
 let toastT = null;
@@ -1049,17 +1110,24 @@ function buildSummary(){
   state.nutrients.forEach(n => {
     const w = windowOf(n), t = rowTotal(n), name = (n.name || '?').padEnd(6);
     if (!w.ok){ L.push(`${name} — invalid window (start ${n.start}, end ${n.end})`); return; }
-    L.push(`${name} ${trimNum(num(n.rate))} g/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtG(t)}  ≈ ${fmt(t/LB, 1)} lb`);
+    if (kindOf(n) === 'liquid'){
+      L.push(`${name} ${trimNum(num(n.rate))} mL/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtML(t)}  ≈ ${fmt(t/ML_PER_L, 2)} L  ≈ ${fmt(t/ML_PER_GAL, 2)} gal`);
+    } else {
+      L.push(`${name} ${trimNum(num(n.rate))} g/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtG(t)}  ≈ ${fmt(t/LB, 1)} lb`);
+    }
   });
   L.push(''); L.push('BATCHING PHASES'); L.push('-'.repeat(60));
   computePhases().forEach((p, i) => {
     const vol = (p.e - p.s + 1) * G;
-    const parts = p.act.map(n => `${n.name} ${fmtG(num(n.rate) * vol)}`);
+    const parts = p.act.map(n => `${n.name} ${fmtAmount(n, num(n.rate) * vol)}`);
     L.push(`Phase ${roman(i+1).padEnd(4)} days ${String(p.s).padStart(3)}–${String(p.e).padEnd(3)} (${p.e - p.s + 1} d, ${fmt(vol,0)} gal): ${parts.length ? parts.join('  ·  ') : '—'}`);
   });
   L.push(''); L.push('='.repeat(60));
-  const g = grandTotal();
-  L.push(`GRAND TOTAL: ${fmtG(g)}  ≈ ${fmt(g/1000, 2)} kg  ≈ ${fmt(g/LB, 2)} lb`);
+  const dry = totalForKind('dry'), liquid = totalForKind('liquid');
+  if (state.nutrients.some(n => kindOf(n) === 'dry'))
+    L.push(`DRY TOTAL: ${fmtG(dry)}  ≈ ${fmt(dry/1000, 2)} kg  ≈ ${fmt(dry/LB, 2)} lb`);
+  if (state.nutrients.some(n => kindOf(n) === 'liquid'))
+    L.push(`LIQUID TOTAL: ${fmtML(liquid)}  ≈ ${fmt(liquid/ML_PER_L, 2)} L  ≈ ${fmt(liquid/ML_PER_GAL, 2)} gal  ≈ ${fmt(liquid/ML_PER_FLOZ, 1)} fl oz`);
   return L.join('\n');
 }
  $('#copyBtn').addEventListener('click', async () => {
@@ -1095,33 +1163,36 @@ refresh();
   var DICT = {
     'Hydroponic feed planning · Worksheet no. 001': '水培施肥规划 · 工作表第 001 号',
     'Nutrient Batch Ledger': '养分批次台账',
-    'Dry-fertilizer requirements figured from reservoir volume, per-gallon dosing rates and application windows.':
-      '根据储液箱容积、每加仑投配率与施用窗口，核算干肥需求。',
+    'Nutrient requirements figured from reservoir volume, per-gallon dosing rates and application windows.':
+      '根据储液箱容积、每加仑投配率与施用窗口，核算养分需求。',
     'Display unit': '显示单位',
     'Nutrient register': '养分清单',
     'Add nutrient': '添加养分',
     'Nutrient': '养分', 'Rate': '投配率', 'Window (days)': '施用窗口（天）',
     'Days used': '使用天数', 'Total required': '需求总量',
     'No nutrients registered — add one to begin.': '尚未登记养分——请先添加一项。',
-    'g/gal': '克/加仑',
+    'g/gal': '克/加仑', 'mL/gal': '毫升/加仑',
     'incomplete': '信息不全', 'outside cycle': '超出周期',
     'start after end': '开始日大于结束日', 'clamped to cycle': '已按周期截断',
     'Application windows': '施用窗口',
     'hover to inspect a day · click to pin it': '悬停查看每日详情 · 点击可固定',
     'Phases': '阶段', 'no nutrients registered yet': '尚未登记养分',
     'Daily total': '当日合计',
-    'Batching phases': '配肥阶段', 'amounts to weigh per phase': '各阶段需称取的用量',
+    'Batching phases': '配肥阶段', 'amounts to measure per phase': '各阶段需量取的用量',
     'Phase': '阶段', 'Days': '日期', 'Length': '时长', 'Volume': '水量', 'Total': '合计',
-    'Grand total — all dry nutrients': '干肥总量——全部养分合计',
+    'Grand total — all nutrients': '总量——全部养分合计',
+    'Dry total': '干肥总量', 'Liquid total': '液体总量',
     'Copy summary': '复制摘要',
     'All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · assumes constant daily volume':
       '所有数字均在本地计算 · 数据不会离开本页 · 1 磅 = 453.592 克 · 假设每日水量恒定',
     'HYDROPONIC FEED · BATCH SCHEDULE ·': '水培施肥 · 批次计划 ·',
     'DAY CYCLE': '天循环',
     'g': '克', 'kg': '千克', 'lb': '磅', 'oz': '盎司',
+    'mL': '毫升', 'L': '升', 'fl oz': '液体盎司',
     'Summary copied': '摘要已复制', 'Copied to clipboard': '已复制到剪贴板', 'Copied!': '已复制！',
     'Cycle length in days': '周期天数', 'Gallons of solution per day': '每日营养液加仑数',
     'Nutrient name': '养分名称', 'Rate in grams per gallon': '每加仑投配克数',
+    'Rate per gallon': '每加仑投配量', 'Rate unit': '投配单位',
     'Start day': '开始日', 'End day': '结束日',
     'Previous day': '前一天', 'Next day': '后一天'
   };
@@ -1129,7 +1200,11 @@ refresh();
   /* unit conversion for numeric strings, e.g. "1,800 g" → "1,800 克" */
   function zhUnits(s) {
     return s
+      .replace(/mL\/gal/g, '毫升/加仑')
       .replace(/g\/gal/g, '克/加仑')
+      .replace(/(?<=[\d,])\s?fl oz\b/g, ' 液体盎司')
+      .replace(/(?<=[\d,])\s?mL\b/g, ' 毫升')
+      .replace(/(?<=[\d,])\s?L\b/g, ' 升')
       .replace(/(?<=[\d,])\s?gal\b/g, ' 加仑')
       .replace(/(?<=[\d,])\s?kg\b/g, ' 千克')
       .replace(/(?<=[\d,])\s?lb\b/g, ' 磅')
