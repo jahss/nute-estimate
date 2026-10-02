@@ -438,6 +438,10 @@ tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font
   .sec-head{gap:10px;margin-bottom:14px}
   .scroll-x{max-width:100%;margin:0 -12px;padding:0 12px;overscroll-behavior-x:contain}
   th,td{padding:10px 9px}
+  #regTable th:first-child,#regTable td:first-child{position:sticky;left:0;z-index:2;min-width:150px;background:var(--paper);box-shadow:2px 0 0 var(--line-2)}
+  #regTable thead th:first-child{z-index:3}
+  #phaseTable th:nth-child(2),#phaseTable tbody td:nth-child(2){position:sticky;left:0;z-index:2;min-width:78px;background:var(--paper);box-shadow:2px 0 0 var(--line-2)}
+  #phaseTable thead th:nth-child(2){z-index:3}
   .timeline{--tl-label:72px}
   .tl-label{font-size:12px;padding-right:8px}
   .day-card{padding:14px 12px;gap:14px;align-items:stretch}
@@ -529,7 +533,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       </button>
     </div>
     <div class="scroll-x">
-      <table>
+      <table id="regTable">
         <thead><tr>
           <th>Nutrient</th><th class="r">Rate</th><th>Window (days)</th><th class="r">Days used</th><th class="r">Total required</th><th class="del-col"></th>
         </tr></thead>
@@ -993,11 +997,11 @@ function renderPhases(){
   }
   html += '</tbody>';
   if (nuts.length && ph.length){
-    html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">' + fmt(state.days * state.gal, 0) + ' gal</td>';
-    nuts.forEach(n => {
+    html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">' + fmt(state.days * state.gal, 0) + ' gal</td>';    nuts.forEach(n => {
       const tt = rowTotal(n);
       html += isFinite(tt) ? `<td class="r">${fmtU(tt)}</td>` : '<td class="off">·</td>';
-    });    html += '</tr></tfoot>';
+    });
+    html += '</tr></tfoot>';
   }
   t.innerHTML = html;
 }
