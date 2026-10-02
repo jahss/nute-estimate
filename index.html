@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive nutrient batch ledger and feed-phase calculator.">
+  <title>Nutrient Batch Ledger</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+/* vietnamese */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU58FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChjdfeQ7ZXk8kD6.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU58FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChjdPeQ7ZXk8kD6.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU58FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChjeveQ7ZXk8g.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxCBTeP2Xz5fU8w.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxCFTeP2Xz5fU8w.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/fraunces/v38/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxC9TeP2Xz5c.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa2HdgregdFOFh.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa0XdgregdFOFh.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa2ndgregdFOFh.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa23dgregdFOFh.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6pfjptAgt5VM-kVkqdyU8n1ioa1XdgregdFA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iIq131nj-otFQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1isq131nj-otFQ.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iAq131nj-otFQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1iEq131nj-otFQ.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl1FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlRFgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl9FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwl5FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl1FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlRFgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl9FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwl5FgsAXHNlYzg.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+
+:root{
+  --paper:#F3EFE3; --paper-2:#EAE4D2; --card:#F8F5EC;
+  --ink:#20291F; --ink-2:rgba(32,41,31,.62); --ink-3:rgba(32,41,31,.38);
+  --line:rgba(32,41,31,.18); --line-2:rgba(32,41,31,.34);
+  --rust:#B4552D; --green:#2F6B3F;
+  --mono:'IBM Plex Mono',monospace; --serif:'Fraunces',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.55}
+/* paper grain */
+body::after{content:"";position:fixed;inset:0;z-index:3000;pointer-events:none;opacity:.42;
+background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");}
+::selection{background:var(--rust);color:var(--paper)}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+
+.page{max-width:1120px;margin:0 auto;padding:54px 44px 60px}
+.page>*{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+.page>*:nth-child(2){animation-delay:.05s}.page>*:nth-child(3){animation-delay:.1s}
+.page>*:nth-child(4){animation-delay:.16s}.page>*:nth-child(5){animation-delay:.22s}
+.page>*:nth-child(6){animation-delay:.28s}.page>*:nth-child(7){animation-delay:.34s}
+.page>*:nth-child(8){animation-delay:.4s}.page>*:nth-child(9){animation-delay:.44s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- masthead ---------- */
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;padding-bottom:26px}
+.eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--rust);font-weight:500;margin-bottom:14px}
+h1{font-family:var(--serif);font-optical-sizing:auto;font-size:clamp(40px,6vw,64px);font-weight:600;letter-spacing:-.015em;line-height:1.02}
+.mast-sub{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-2);margin-top:14px;max-width:54ch}
+.stamp{width:148px;height:148px;color:var(--rust);transform:rotate(-8deg);mix-blend-mode:multiply;flex-shrink:0;opacity:.92}
+.stamp text{font-family:var(--mono);fill:currentColor}
+.stamp .arc-t{font-size:9.5px;letter-spacing:2.3px;font-weight:500}
+.rule-tt{border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);height:7px}
+.rule-tt2{border-top:1px solid var(--ink);border-bottom:3px solid var(--ink);height:7px}
+
+/* ---------- lede ---------- */
+.lede-sec{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:flex-end;justify-content:space-between;margin-top:44px}
+.lede{font-family:var(--serif);font-size:clamp(21px,2.6vw,27px);line-height:1.55;max-width:46ch}
+.lede b{font-weight:600}
+.lede-in{font:inherit;color:var(--ink);background:transparent;border:none;border-bottom:2px dashed var(--line-2);padding:0 2px;min-width:2ch;text-align:center}
+.lede-in:focus{outline:none;border-bottom-color:var(--rust);border-bottom-style:solid}
+.unit-cap{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;text-align:right}
+.seg{display:inline-flex}
+.seg button{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;background:transparent;border:1px solid var(--ink);color:var(--ink);cursor:pointer;margin-left:-1px;transition:background .15s,color .15s}
+.seg button:first-child{margin-left:0}
+.seg button:hover{background:var(--paper-2)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+
+/* ---------- sections ---------- */
+section{margin-top:52px}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.sec-num{font-size:11px;color:var(--rust);font-weight:600;letter-spacing:.08em}
+.sec-head h2{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.sec-rule{flex:1;border-top:1px dashed var(--line-2);min-width:30px}
+.sec-hint{font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--ink-3)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:11px 18px;cursor:pointer;transition:background .15s,border-color .15s,transform .05s}
+.btn:hover{background:var(--rust);border-color:var(--rust)}
+.btn:active{transform:translateY(1px)}
+.btn-sm{padding:8px 14px}
+.btn-ghost{background:transparent;color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ---------- tables ---------- */
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%}
+th{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);font-weight:500;text-align:left;padding:10px 12px;border-bottom:2px solid var(--ink);white-space:nowrap}
+th.r,td.r{text-align:right}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:rgba(32,41,31,.045)}
+td.empty{font-family:var(--serif);font-style:italic;color:var(--ink-3);padding:26px 12px;text-align:center;white-space:normal}
+
+/* ---------- register ---------- */
+.sw{display:inline-block;width:13px;height:13px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.sw-sm{width:9px;height:9px;margin-right:7px;vertical-align:-1px}
+.name-flex{display:inline-flex;align-items:center;gap:10px}
+.c-name{min-width:150px}
+.in-name{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);background:transparent;border:none;border-bottom:1px dashed var(--line);width:9ch;padding:2px 0}
+.in-name:hover,.in-name:focus{border-bottom-color:var(--rust);border-bottom-style:solid;outline:none}
+.in-num{font-family:var(--mono);font-size:14px;color:var(--ink);background:transparent;border:none;border-bottom:1px dashed var(--line-2);padding:2px 0}
+.in-num:focus{outline:none;border-bottom-color:var(--rust);border-bottom-style:solid}
+.in-rate{width:6.5ch;text-align:right}
+.in-start,.in-end{width:4.5ch;text-align:center}
+.c-rate .unit-note{font-size:11px;color:var(--ink-3);margin-left:8px}
+.c-win .dash{color:var(--ink-3);margin:0 6px}
+.days-val{font-size:13px;font-weight:500}
+.days-note{display:block;font-size:10px;color:var(--rust);letter-spacing:.04em}
+tr.invalid .in-start,tr.invalid .in-end{border-bottom-color:var(--rust)}
+tr.invalid .tot{color:var(--ink-3)}
+.tot{font-size:14px;font-weight:600}
+.tot-sub{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+.del-col{width:34px}
+.del{background:transparent;border:none;color:var(--ink-3);cursor:pointer;padding:6px;line-height:0;transition:color .15s}
+.del:hover{color:var(--rust)}
+
+/* ---------- timeline ---------- */
+.timeline{--tl-label:132px;position:relative;user-select:none;-webkit-user-select:none;cursor:crosshair;touch-action:manipulation}
+.tl-grid{display:grid;grid-template-columns:var(--tl-label) 1fr}
+.tl-corner{border-bottom:1px solid var(--line)}
+.tl-corner.ph{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:flex-end;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.tl-corner.ax{border-bottom:1.5px solid var(--ink)}
+.tl-phases{position:relative;height:26px;border-bottom:1px dashed var(--line)}
+.ph-band{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ph-band.alt{background:rgba(32,41,31,.06)}
+.ph-band+.ph-band{border-left:1px dashed var(--line-2)}
+.ph-band span{font-size:10px;letter-spacing:.06em;color:var(--ink-2);white-space:nowrap}
+.tl-ruler{position:relative;height:30px;border-bottom:1.5px solid var(--ink)}
+.tl-tick{position:absolute;bottom:6px;font-size:10px;color:var(--ink-2);transform:translateX(2px)}
+.tl-tick.t-last{transform:translateX(calc(-100% - 2px))}
+.tl-label{position:relative;z-index:1;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;padding-right:14px;border-bottom:1px dotted var(--line);overflow:hidden;white-space:nowrap}
+.tl-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tl-track{position:relative;z-index:1;height:44px;border-bottom:1px dotted var(--line)}
+.tl-bar{position:absolute;top:11px;height:22px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);display:flex;align-items:center;overflow:hidden}
+.tl-bar-label{font-size:10px;font-weight:500;color:#F5F0E1;padding:0 7px;letter-spacing:.03em;white-space:nowrap}
+.tl-bar.hl{outline:2px solid var(--ink);outline-offset:2px}
+.tl-bar.anim{animation:barIn .55s cubic-bezier(.25,.8,.3,1) both;animation-delay:calc(var(--i)*70ms);transform-origin:left center}
+@keyframes barIn{from{transform:scaleX(0);opacity:.4}}
+.tl-label.empty,.tl-track.empty{color:var(--ink-3);font-weight:400}
+.tl-track.empty{display:flex;align-items:center;font-family:var(--serif);font-style:italic;font-size:13px}
+.tl-under,.tl-over{position:absolute;top:0;bottom:0;pointer-events:none}
+.tl-under{z-index:0}
+.tl-over{z-index:2}
+.tl-grid-line{position:absolute;top:0;bottom:0;width:1px;background:rgba(32,41,31,.11)}
+.tl-grid-line.g-edge{background:rgba(32,41,31,.3)}
+.tl-cross{position:absolute;top:0;bottom:0;width:1px;background:var(--rust);opacity:.75;display:none}
+.tl-pin{position:absolute;top:0;bottom:0;background:rgba(180,85,45,.09);border-left:1px solid var(--rust);border-right:1px solid rgba(180,85,45,.35)}
+.pin-flag{position:absolute;top:0;transform:translateX(-50%);background:var(--rust);color:var(--paper);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 6px 1px;white-space:nowrap}
+
+/* tooltip */
+.tl-tip{position:fixed;z-index:900;display:none;pointer-events:none;background:var(--paper);border:1px solid var(--ink);box-shadow:3px 4px 0 rgba(32,41,31,.16);padding:10px 12px;min-width:150px;max-width:250px}
+.tip-h{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:7px;font-weight:600}
+.tip-r{display:flex;align-items:center;gap:8px;font-size:12px;padding:2px 0}
+.tip-r .dot{width:8px;height:8px;flex-shrink:0}
+.tip-amt{margin-left:auto;font-weight:600;padding-left:12px}
+.tip-e{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink-3)}
+
+/* ---------- day card ---------- */
+.day-card{margin-top:18px;border:1px solid var(--ink);border-left:4px solid var(--rust);background:var(--card);padding:16px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:18px 28px;min-height:66px}
+.dc-hint{font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:15px}
+.dc-nav{display:flex;align-items:center;gap:10px}
+.nav-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line-2);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.nav-btn:hover:not(:disabled){border-color:var(--ink);background:var(--paper-2)}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.dc-day-num{font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.1;display:block}
+.dc-day-sub{display:block;font-size:10px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.dc-mix{display:flex;flex-wrap:wrap;gap:8px 10px;flex:1;min-width:260px}
+.dc-chip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;border:1px solid var(--line);padding:7px 11px;background:var(--paper)}
+.dc-chip b{font-weight:600}
+.dc-amt{font-weight:600;margin-left:2px}
+.dc-none{font-family:var(--serif);font-style:italic;color:var(--ink-3)}
+.dc-total{display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-left:auto}
+.dc-total-cap{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.dc-total-fig{font-family:var(--serif);font-size:23px;font-weight:600}
+
+/* ---------- phases ---------- */
+.ph-num{font-family:var(--serif);font-size:16px;font-weight:600}
+.ph-days{font-weight:500}
+td.off{color:var(--ink-3);text-align:center}
+tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font-size:13px}
+
+/* ---------- tally ---------- */
+.tally{display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap;padding:8px 0 26px}
+.tally-cap{font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.tally-sub{font-size:12px;color:var(--ink-2);margin-top:6px}
+.tally-right{margin-left:auto;text-align:right}
+.tally-fig{font-family:var(--serif);font-size:clamp(36px,4.5vw,52px);font-weight:600;line-height:1;letter-spacing:-.01em}
+.tally-equiv{font-size:12px;color:var(--ink-2);margin-top:6px}
+.fineprint{margin-top:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);text-align:center;line-height:2}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,14px);background:var(--ink);color:var(--paper);font-size:12px;letter-spacing:.08em;padding:11px 20px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:1000}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:760px){
+  .page{padding:32px 18px 48px}
+  .masthead{flex-direction:column;align-items:flex-start;gap:20px}
+  .stamp{width:108px;height:108px}
+  .lede-sec{flex-direction:column;align-items:flex-start}
+  .unit-cap{text-align:left}
+  .timeline{--tl-label:76px}
+  .tally-right{text-align:left;margin-left:0}
+}
+
+/* ═══ language toggle — added ═══ */
+.lang-row{display:flex;justify-content:flex-end;margin-bottom:14px}
+.seg-lang button{min-width:56px}
+
+/* ═══ Chinese typography — only applies when <html lang="zh-CN"> ═══ */
+html[lang="zh-CN"]{
+  --serif:'Noto Serif SC','Fraunces',serif;
+  --mono:'IBM Plex Mono','Noto Sans SC',monospace;
+}
+html[lang="zh-CN"] h1{letter-spacing:.01em}
+html[lang="zh-CN"] .eyebrow,
+html[lang="zh-CN"] .sec-head h2,
+html[lang="zh-CN"] th,
+html[lang="zh-CN"] .unit-cap,
+html[lang="zh-CN"] .tally-cap,
+html[lang="zh-CN"] .dc-total-cap,
+html[lang="zh-CN"] .fineprint,
+html[lang="zh-CN"] .tip-h,
+html[lang="zh-CN"] .dc-day-sub{letter-spacing:.1em}
+/* CJK has no true italics — turn them off so it doesn't look fake-slanted */
+html[lang="zh-CN"] .mast-sub,
+html[lang="zh-CN"] .lede,
+html[lang="zh-CN"] .sec-hint,
+html[lang="zh-CN"] .dc-hint,
+html[lang="zh-CN"] .dc-none,
+html[lang="zh-CN"] td.empty,
+html[lang="zh-CN"] .tl-track.empty,
+html[lang="zh-CN"] .tip-e{font-style:normal}
+  </style>
+</head>
+<body>
+<div class="page">
+<!-- language toggle (added) -->
+<div class="lang-row">
+  <div class="seg seg-lang" id="langSeg" role="group" aria-label="Language / 语言">
+    <button type="button" data-lang="en" class="on">EN</button><button type="button" data-lang="zh">中文</button>
+  </div>
+</div>
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Hydroponic feed planning · Worksheet no. 001</div>
+      <h1>Nutrient Batch Ledger</h1>
+      <p class="mast-sub">Dry-fertilizer requirements figured from reservoir volume, per-gallon dosing rates and application windows.</p>
+    </div>
+    <svg class="stamp" viewBox="0 0 130 130" aria-hidden="true">
+      <defs><path id="stampArc" d="M65 65 m -46 0 a 46 46 0 1 1 92 0 a 46 46 0 1 1 -92 0"></path></defs>
+      <circle cx="65" cy="65" r="60" fill="none" stroke="currentColor" stroke-width="2.5"></circle>
+      <circle cx="65" cy="65" r="36" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+      <text class="arc-t"><textPath href="#stampArc">HYDROPONIC FEED · BATCH SCHEDULE · </textPath></text>
+      <text id="stampNum" x="65" y="63" text-anchor="middle" font-size="21" font-weight="600">63</text>
+      <text x="65" y="78" text-anchor="middle" font-size="7.5" letter-spacing="2">DAY CYCLE</text>
+    </svg>
+  </header>
+  <div class="rule-tt"></div>
+
+  <section class="lede-sec">
+    <p class="lede">Over
+      <input id="daysIn" class="lede-in" type="number" min="1" step="1" value="63" aria-label="Cycle length in days" style="width: 2ch;"> days at
+      <input id="galIn" class="lede-in" type="number" min="0" step="1" value="300" aria-label="Gallons of solution per day" style="width: 3ch;"> gallons of solution per day,
+      the cycle turns over <b id="totalGalFig">18,900</b> gallons across <b id="phaseFig">4</b> distinct feed phases.
+    </p>
+    <div>
+      <div class="unit-cap">Display unit</div>
+      <div class="seg" id="unitSeg">
+        <button data-u="g" class="on">g</button><button data-u="kg">kg</button><button data-u="lb">lb</button><button data-u="oz">oz</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span><h2>Nutrient register</h2><span class="sec-rule"></span>
+      <button class="btn btn-sm" id="addBtn">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.5"></path></svg>
+        Add nutrient
+      </button>
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>Nutrient</th><th class="r">Rate</th><th>Window (days)</th><th class="r">Days used</th><th class="r">Total required</th><th class="del-col"></th>
+        </tr></thead>
+        <tbody id="regBody"><tr data-id="1">
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:#2F6B3F"></span>
+        <input class="in-name" value="A" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="6" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="1" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="63" aria-label="End day"></td>
+      <td class="r"><span class="days-val">63 d</span><span class="days-note"></span></td>
+      <td class="r"><div class="tot">113,400 g</div><div class="tot-sub">≈ 250.0 lb</div></td>
+      <td><button class="del" aria-label="Remove A">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="2">
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:#B4552D"></span>
+        <input class="in-name" value="B" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="3" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="1" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="63" aria-label="End day"></td>
+      <td class="r"><span class="days-val">63 d</span><span class="days-note"></span></td>
+      <td class="r"><div class="tot">56,700 g</div><div class="tot-sub">≈ 125.0 lb</div></td>
+      <td><button class="del" aria-label="Remove B">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="3">
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:#8F6E14"></span>
+        <input class="in-name" value="C" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="42" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="49" aria-label="End day"></td>
+      <td class="r"><span class="days-val">8 d</span><span class="days-note"></span></td>
+      <td class="r"><div class="tot">2,400 g</div><div class="tot-sub">≈ 5.3 lb</div></td>
+      <td><button class="del" aria-label="Remove C">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="4">
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:#2C5A63"></span>
+        <input class="in-name" value="D" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="42" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="49" aria-label="End day"></td>
+      <td class="r"><span class="days-val">8 d</span><span class="days-note"></span></td>
+      <td class="r"><div class="tot">2,400 g</div><div class="tot-sub">≈ 5.3 lb</div></td>
+      <td><button class="del" aria-label="Remove D">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="5">
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:#6D3B52"></span>
+        <input class="in-name" value="E" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="1" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="14" aria-label="End day"></td>
+      <td class="r"><span class="days-val">14 d</span><span class="days-note"></span></td>
+      <td class="r"><div class="tot">4,200 g</div><div class="tot-sub">≈ 9.3 lb</div></td>
+      <td><button class="del" aria-label="Remove E">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span><h2>Application windows</h2><span class="sec-rule"></span>
+      <span class="sec-hint">hover to inspect a day · click to pin it</span>
+    </div>
+    <div class="timeline" id="timeline"><div class="tl-grid"><div class="tl-corner ph">Phases</div><div class="tl-phases"><div class="ph-band" style="left: 0%; width: 22.2222%;" title="Phase I · days 1–14" data-px="200"><span>1–14</span></div><div class="ph-band alt" style="left: 22.2222%; width: 42.8571%;" title="Phase II · days 15–41" data-px="385.71428571428567"><span>15–41</span></div><div class="ph-band" style="left: 65.0794%; width: 12.6984%;" title="Phase III · days 42–49" data-px="114.28571428571428"><span>42–49</span></div><div class="ph-band alt" style="left: 77.7778%; width: 22.2222%;" title="Phase IV · days 50–63" data-px="200"><span>50–63</span></div></div><div class="tl-corner ax"></div><div class="tl-ruler"><span class="tl-tick" style="left: 0%;">1</span><span class="tl-tick" style="left: 7.93651%;">6</span><span class="tl-tick" style="left: 15.873%;">11</span><span class="tl-tick" style="left: 23.8095%;">16</span><span class="tl-tick" style="left: 31.746%;">21</span><span class="tl-tick" style="left: 39.6825%;">26</span><span class="tl-tick" style="left: 47.6191%;">31</span><span class="tl-tick" style="left: 55.5556%;">36</span><span class="tl-tick" style="left: 63.4921%;">41</span><span class="tl-tick" style="left: 71.4286%;">46</span><span class="tl-tick" style="left: 79.3651%;">51</span><span class="tl-tick" style="left: 87.3016%;">56</span><span class="tl-tick" style="left: 95.2381%;">61</span><span class="tl-tick t-last" style="left: 100%;">63</span></div><div class="tl-label"><span class="sw" style="background: rgb(47, 107, 63);"></span><span class="tl-name">A</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="1" style="background: rgb(47, 107, 63); left: 0%; width: 100%; --i: 0;"><span class="tl-bar-label">6 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(180, 85, 45);"></span><span class="tl-name">B</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="2" style="background: rgb(180, 85, 45); left: 0%; width: 100%; --i: 1;"><span class="tl-bar-label">3 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(143, 110, 20);"></span><span class="tl-name">C</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="3" style="background: rgb(143, 110, 20); left: 65.0794%; width: 12.6984%; --i: 2;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(44, 90, 99);"></span><span class="tl-name">D</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="4" style="background: rgb(44, 90, 99); left: 65.0794%; width: 12.6984%; --i: 3;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(109, 59, 82);"></span><span class="tl-name">E</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="5" style="background: rgb(109, 59, 82); left: 0%; width: 22.2222%; --i: 4;"><span class="tl-bar-label">1 g/gal</span></div></div></div><div class="tl-under" style="left: 132px;"><div class="tl-grid-line g-edge" style="left: 0%;"></div><div class="tl-grid-line" style="left: 7.93651%;"></div><div class="tl-grid-line" style="left: 15.873%;"></div><div class="tl-grid-line" style="left: 23.8095%;"></div><div class="tl-grid-line" style="left: 31.746%;"></div><div class="tl-grid-line" style="left: 39.6825%;"></div><div class="tl-grid-line" style="left: 47.6191%;"></div><div class="tl-grid-line" style="left: 55.5556%;"></div><div class="tl-grid-line" style="left: 63.4921%;"></div><div class="tl-grid-line" style="left: 71.4286%;"></div><div class="tl-grid-line" style="left: 79.3651%;"></div><div class="tl-grid-line" style="left: 87.3016%;"></div><div class="tl-grid-line" style="left: 95.2381%;"></div><div class="tl-grid-line g-edge" style="left: 100%;"></div><div class="tl-pin" style="left: 0%; width: 1.5873%;"></div></div><div class="tl-over" style="left: 132px;"><div class="tl-cross"></div><span class="pin-flag" style="left: 0.793651%;">D1</span></div></div>
+    <div class="day-card" id="dayCard"><div class="dc-nav">
+      <button class="nav-btn" id="dayPrev" aria-label="Previous day" disabled="disabled"><svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M7.5 1 2 6l5.5 5" stroke="currentColor" stroke-width="1.6"></path></svg></button>
+      <div><span class="dc-day-num">Day 1</span><span class="dc-day-sub">of 63 · 300 gal</span></div>
+      <button class="nav-btn" id="dayNext" aria-label="Next day"><svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M1.5 1 7 6l-5.5 5" stroke="currentColor" stroke-width="1.6"></path></svg></button>
+    </div><div class="dc-mix"><span class="dc-chip"><span class="sw" style="background:#2F6B3F"></span><b>A</b> 6 g/gal × 300 gal <span class="dc-amt">1,800 g</span></span><span class="dc-chip"><span class="sw" style="background:#B4552D"></span><b>B</b> 3 g/gal × 300 gal <span class="dc-amt">900 g</span></span><span class="dc-chip"><span class="sw" style="background:#6D3B52"></span><b>E</b> 1 g/gal × 300 gal <span class="dc-amt">300 g</span></span></div><div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">3,000 g</span></div></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span><h2>Batching phases</h2><span class="sec-rule"></span>
+      <span class="sec-hint">amounts to weigh per phase</span>
+    </div>
+    <div class="scroll-x">
+      <table id="phaseTable"><thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th><th class="r"><span class="sw sw-sm" style="background:#2F6B3F"></span>A</th><th class="r"><span class="sw sw-sm" style="background:#B4552D"></span>B</th><th class="r"><span class="sw sw-sm" style="background:#8F6E14"></span>C</th><th class="r"><span class="sw sw-sm" style="background:#2C5A63"></span>D</th><th class="r"><span class="sw sw-sm" style="background:#6D3B52"></span>E</th></tr></thead><tbody><tr><td class="ph-num">I</td><td class="ph-days">1–14</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="r">4,200 g</td></tr><tr><td class="ph-num">II</td><td class="ph-days">15–41</td><td class="r">27 d</td><td class="r">8,100 gal</td><td class="r">48,600 g</td><td class="r">24,300 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr><tr><td class="ph-num">III</td><td class="ph-days">42–49</td><td class="r">8 d</td><td class="r">2,400 gal</td><td class="r">14,400 g</td><td class="r">7,200 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="off">·</td></tr><tr><td class="ph-num">IV</td><td class="ph-days">50–63</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr></tbody><tfoot><tr><td colspan="3" class="r">Total</td><td class="r">18,900 gal</td><td class="r">113,400 g</td><td class="r">56,700 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="r">4,200 g</td></tr></tfoot></table>
+    </div>
+  </section>
+
+  <footer class="tally">
+    <div>
+      <div class="tally-cap">Grand total — all dry nutrients</div>
+      <div class="tally-sub" id="tallySub">across the full 63-day cycle · 5 of 5 nutrients active</div>
+    </div>
+    <div class="tally-right">
+      <div class="tally-fig" id="tallyFig">179,100 g</div>
+      <div class="tally-equiv" id="tallyEquiv">= 179,100 g · 394.85 lb</div>
+    </div>
+    <button class="btn btn-ghost" id="copyBtn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" stroke="currentColor" stroke-width="1.3"></rect><path d="M8.5 3.5v-2h-7v7h2" stroke="currentColor" stroke-width="1.3"></path></svg>
+      Copy summary
+    </button>
+  </footer>
+  <div class="rule-tt2"></div>
+  <div class="fineprint">All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · assumes constant daily volume</div>
+
+</div>
+
+<div class="tl-tip" id="tlTip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $ = (s, c=document) => c.querySelector(s);
+const PALETTE = ['#2F6B3F','#B4552D','#8F6E14','#2C5A63','#6D3B52','#6B4A2B','#57603A','#7A3B2E'];
+const LB = 453.59237, OZ = 28.3495231;
+let _uid = 0; const uid = () => ++_uid;
+
+/* ---------------- state (your schedule as defaults) ---------------- */
+const state = {
+  days: 63, gal: 300, unit: 'g', pinned: 1,
+  nutrients: [
+    {id:uid(), name:'A', rate:6, start:1,  end:63, color:PALETTE[0]},
+    {id:uid(), name:'B', rate:3, start:1,  end:63, color:PALETTE[1]},
+    {id:uid(), name:'C', rate:1, start:42, end:49, color:PALETTE[2]},
+    {id:uid(), name:'D', rate:1, start:42, end:49, color:PALETTE[3]},
+    {id:uid(), name:'E', rate:1, start:1,  end:14, color:PALETTE[4]}, /* rate & window were unspecified — edit freely */
+  ]
+};
+let animateNext = true;
+
+/* ---------------- helpers ---------------- */
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : NaN; };
+const fmt = (v,d=0) => isFinite(v) ? v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}) : '—';
+const fmtG = g => !isFinite(g) ? '—' : fmt(g, g>=100 ? 0 : (Math.abs(g%1)>1e-9 ? 2 : 0)) + ' g';
+const trimNum = v => !isFinite(v) ? '—' : String(Math.round(v*100)/100);
+const fmtGal = () => fmt(state.gal, state.gal%1 ? 1 : 0);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const h = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+
+function fmtU(g){ /* format grams in the selected display unit */
+  if (!isFinite(g)) return '—';
+  if (state.unit === 'g')  return fmtG(g);
+  if (state.unit === 'kg') return fmt(g/1000, g/1000 >= 100 ? 1 : 2) + ' kg';
+  if (state.unit === 'lb') return fmt(g/LB, 2) + ' lb';
+  return fmt(g/OZ, 1) + ' oz';
+}
+function roman(n){
+  const m = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let r = ''; for (const [v,s] of m){ while (n >= v){ r += s; n -= v; } } return r || '—';
+}
+
+/* ---------------- core math ---------------- */
+/* effective window: clamped to the cycle, inclusive days */
+function windowOf(n){
+  const D = state.days;
+  const rs = Math.floor(num(n.start)), re = Math.floor(num(n.end));
+  const s = isFinite(rs) ? Math.max(1, rs) : NaN;
+  const e = isFinite(re) ? Math.min(D, re) : NaN;
+  const rate = num(n.rate);
+  const ok = isFinite(s) && isFinite(e) && s <= e && isFinite(rate) && rate >= 0;
+  return { ok, s, e, days: ok ? e - s + 1 : 0 };
+}
+function rowTotal(n){
+  const w = windowOf(n);
+  return w.ok ? num(n.rate) * state.gal * w.days : NaN;
+}
+const validNutrients = () => state.nutrients.filter(n => windowOf(n).ok);
+const grandTotal = () => state.nutrients.reduce((a,n) => a + (isFinite(rowTotal(n)) ? rowTotal(n) : 0), 0);
+const dayMix = d => validNutrients().filter(n => { const w = windowOf(n); return d >= w.s && d <= w.e; });
+
+/* phases = maximal day ranges during which the active nutrient set doesn't change */
+function computePhases(){
+  const D = state.days, bs = new Set([1, D+1]);
+  validNutrients().forEach(n => { const w = windowOf(n); bs.add(w.s); bs.add(w.e + 1); });
+  const arr = [...bs].filter(b => b >= 1 && b <= D+1).sort((a,b) => a-b);
+  const phases = [];
+  for (let i = 0; i < arr.length - 1; i++){
+    const s = arr[i], e = arr[i+1] - 1;
+    if (s > e) continue;
+    phases.push({ s, e, act: validNutrients().filter(n => { const w = windowOf(n); return w.s <= s && w.e >= e; }) });
+  }
+  return phases;
+}
+
+/* ---------------- refresh plumbing ---------------- */
+let rafPending = false;
+function scheduleRefresh(){
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; refresh(); });
+}
+function refresh(){
+  $('#totalGalFig').textContent = fmt(state.days * state.gal, (state.days * state.gal) % 1 ? 1 : 0);
+  $('#phaseFig').textContent = computePhases().length;
+  $('#stampNum').textContent = state.days;
+  updateRowOutputs();
+  renderTimeline();
+  renderPhases();
+  renderTally();
+  renderDayCard();
+}
+
+/* ---------------- nutrient register ---------------- */
+const regBody = $('#regBody');
+
+function nextName(){
+  const used = new Set(state.nutrients.map(n => (n.name||'').trim().toUpperCase()));
+  for (let i = 0; i < 26; i++){ const L = String.fromCharCode(65+i); if (!used.has(L)) return L; }
+  return 'N' + (state.nutrients.length + 1);
+}
+function rebuildRegister(){
+  regBody.innerHTML = '';
+  if (!state.nutrients.length){
+    regBody.innerHTML = '<tr><td colspan="6" class="empty">No nutrients registered — add one to begin.</td></tr>';
+    return;
+  }
+  state.nutrients.forEach(n => {
+    const tr = h('tr'); tr.dataset.id = n.id;
+    tr.innerHTML = `
+      <td class="c-name"><span class="name-flex"><span class="sw" style="background:${n.color}"></span>
+        <input class="in-name" value="${esc(n.name)}" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="${n.rate}" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="${n.start}" aria-label="Start day">
+        <span class="dash">–</span>
+        <input class="in-num in-end" type="number" min="1" step="1" value="${n.end}" aria-label="End day"></td>
+      <td class="r"><span class="days-val"></span><span class="days-note"></span></td>
+      <td class="r"><div class="tot"></div><div class="tot-sub"></div></td>
+      <td><button class="del" aria-label="Remove ${esc(n.name)}">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"/></svg></button></td>`;
+    regBody.appendChild(tr);
+    $('.in-name', tr).addEventListener('input', e => { n.name = e.target.value; scheduleRefresh(); });
+    $('.in-rate', tr).addEventListener('input', e => { n.rate = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+    $('.in-start',tr).addEventListener('input', e => { n.start = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+    $('.in-end', tr).addEventListener('input', e => { n.end = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+    $('.del', tr).addEventListener('click', () => {
+      state.nutrients = state.nutrients.filter(x => x.id !== n.id);
+      rebuildRegister(); scheduleRefresh();
+    });
+  });
+}
+function updateRowOutputs(){
+  [...regBody.children].forEach(tr => {
+    const id = Number(tr.dataset.id);
+    if (!id) return;
+    const n = state.nutrients.find(x => x.id === id);
+    if (!n) return;
+    const w = windowOf(n), t = rowTotal(n);
+    tr.classList.toggle('invalid', !w.ok);
+    const dv = $('.days-val',tr), dn = $('.days-note',tr), tot = $('.tot',tr), sub = $('.tot-sub',tr);
+    if (!w.ok){
+      dv.textContent = '—';
+      const rs = num(n.start), re = num(n.end), rr = num(n.rate);
+      dn.textContent = (!isFinite(rs) || !isFinite(re) || !isFinite(rr)) ? 'incomplete'
+                     : (rs > state.days || re < 1) ? 'outside cycle'
+                     : 'start after end';
+      tot.textContent = '—'; sub.textContent = '';
+    } else {
+      const rs = num(n.start), re = num(n.end);
+      dv.textContent = w.days + ' d';
+      dn.textContent = (rs < 1 || re > state.days) ? 'clamped to cycle' : '';
+      tot.textContent = fmtU(t);
+      sub.textContent = state.unit === 'g' ? '≈ ' + fmt(t/LB, 1) + ' lb' : '= ' + fmtG(t);
+    }
+  });
+}
+ $('#addBtn').addEventListener('click', () => {
+  const usedC = new Set(state.nutrients.map(n => n.color));
+  const color = PALETTE.find(c => !usedC.has(c)) || PALETTE[state.nutrients.length % PALETTE.length];
+  state.nutrients.push({ id: uid(), name: nextName(), rate: 1, start: 1, end: state.days, color });
+  rebuildRegister(); animateNext = true; scheduleRefresh();
+  const tr = regBody.lastElementChild; if (tr) $('.in-name', tr).focus();
+});
+
+/* hover a register row → highlight its bar on the chart */
+regBody.addEventListener('mouseover', e => {
+  const tr = e.target.closest('tr'); if (!tr || !tr.dataset.id) return;
+  document.querySelectorAll(`.tl-bar[data-bar-id="${tr.dataset.id}"]`).forEach(b => b.classList.add('hl'));
+});
+regBody.addEventListener('mouseout', e => {
+  const tr = e.target.closest('tr'); if (!tr || !tr.dataset.id) return;
+  document.querySelectorAll(`.tl-bar[data-bar-id="${tr.dataset.id}"]`).forEach(b => b.classList.remove('hl'));
+});
+
+/* ---------------- timeline ---------------- */
+const tlEl = $('#timeline'), tipEl = $('#tlTip');
+let chartEl = null, crossEl = null;
+
+function pickStep(D, W){
+  const steps = [1,2,5,7,10,14,21,30,45,60,90,120,180,365];
+  const maxLabels = Math.max(2, Math.floor(W / 44));
+  for (const s of steps){ if (Math.floor((D-1)/s) + 1 <= maxLabels) return s; }
+  return 365;
+}
+function gl(parent, pct, cls=''){
+  const g = h('div', 'tl-grid-line' + cls); g.style.left = pct + '%'; parent.appendChild(g);
+}
+function renderTimeline(){
+  const tl = tlEl, D = state.days;
+  tl.innerHTML = '';
+  const grid = h('div','tl-grid');
+
+  const c1 = h('div','tl-corner ph'); c1.textContent = 'Phases';
+  const phCell = h('div','tl-phases');
+  grid.append(c1, phCell);
+
+  const c2 = h('div','tl-corner ax');
+  const rulCell = h('div','tl-ruler');
+  grid.append(c2, rulCell);
+
+  state.nutrients.forEach((n, i) => {
+    const lab = h('div','tl-label');
+    const sw = h('span','sw'); sw.style.background = n.color;
+    const nm = h('span','tl-name'); nm.textContent = n.name || '—';
+    lab.append(sw, nm);
+    const track = h('div','tl-track');
+    const w = windowOf(n);
+    if (w.ok){
+      const bar = h('div','tl-bar' + (animateNext ? ' anim' : ''));
+      bar.dataset.barId = n.id;
+      bar.style.background = n.color;
+      bar.style.left = ((w.s - 1) / D * 100) + '%';
+      bar.style.width = ((w.e - w.s + 1) / D * 100) + '%';
+      bar.style.setProperty('--i', i);
+      const bl = h('span','tl-bar-label'); bl.textContent = trimNum(num(n.rate)) + ' g/gal';
+      bar.appendChild(bl);
+      track.appendChild(bar);
+    }
+    grid.append(lab, track);
+  });
+  if (!state.nutrients.length){
+    grid.append(h('div','tl-label empty'), (() => { const t = h('div','tl-track empty'); t.textContent = 'no nutrients registered yet'; return t; })());
+  }
+  tl.appendChild(grid);
+
+  const under = h('div','tl-under'), over = h('div','tl-over');
+  crossEl = h('div','tl-cross'); over.appendChild(crossEl);
+  tl.append(under, over);
+
+  /* measure the chart column, align overlays */
+  const tlR = tl.getBoundingClientRect(), rc = rulCell.getBoundingClientRect();
+  const off = rc.left - tlR.left;
+  under.style.left = off + 'px'; over.style.left = off + 'px';
+  chartEl = rulCell;
+  const W = rc.width || 1;
+
+  /* ruler ticks + gridlines */
+  const step = pickStep(D, W);
+  const marks = []; for (let b = 1; b <= D; b += step) marks.push(b);
+  marks.forEach((m, i) => gl(under, (m-1)/D*100, i === 0 ? ' g-edge' : ''));
+  gl(under, 100, ' g-edge');
+  let labels = marks.slice();
+  if (labels.length > 1 && (D - labels[labels.length-1] + 1) * (W/D) < 36) labels.pop();
+  labels.forEach(m => { const t = h('span','tl-tick'); t.textContent = m; t.style.left = ((m-1)/D*100) + '%'; rulCell.appendChild(t); });
+  const te = h('span','tl-tick t-last'); te.textContent = D; te.style.left = '100%'; rulCell.appendChild(te);
+
+  /* phase bands */
+  computePhases().forEach((p, i) => {
+    const b = h('div','ph-band' + (i % 2 ? ' alt' : ''));
+    b.style.left = ((p.s - 1) / D * 100) + '%';
+    b.style.width = ((p.e - p.s + 1) / D * 100) + '%';
+    b.title = `Phase ${roman(i+1)} · days ${p.s}–${p.e}`;
+    const s = h('span'); s.textContent = `${p.s}–${p.e}`;
+    b.appendChild(s); phCell.appendChild(b);
+    b.dataset.px = (p.e - p.s + 1) / D * W;
+  });
+
+  /* pinned day column + flag */
+  if (state.pinned){
+    state.pinned = clamp(state.pinned, 1, D);
+    const p = state.pinned;
+    const tint = h('div','tl-pin');
+    tint.style.left = ((p - 1) / D * 100) + '%'; tint.style.width = (100 / D) + '%';
+    under.appendChild(tint);
+    const flag = h('span','pin-flag'); flag.textContent = 'D' + p;
+    flag.style.left = ((p - 0.5) / D * 100) + '%';
+    over.appendChild(flag);
+  }
+
+  /* hide labels that don't fit */
+  phCell.querySelectorAll('.ph-band').forEach(b => { if (+b.dataset.px < 46) b.querySelector('span').style.display = 'none'; });
+  tl.querySelectorAll('.tl-bar').forEach(bar => {
+    if (parseFloat(bar.style.width) / 100 * W < 60) bar.querySelector('.tl-bar-label').style.display = 'none';
+  });
+  animateNext = false;
+}
+
+/* hover / pin interactions */
+function hideHover(){ if (crossEl) crossEl.style.display = 'none'; tipEl.style.display = 'none'; }
+function showTip(d, x, y){
+  const mix = dayMix(d);
+  let html = `<div class="tip-h">Day ${d} · ${fmtGal()} gal</div>`;
+  html += mix.length
+    ? mix.map(n => `<div class="tip-r"><span class="dot" style="background:${n.color}"></span>${esc(n.name||'?')}<span class="tip-amt">${fmtG(num(n.rate) * state.gal)}</span></div>`).join('')
+    : '<div class="tip-e">no nutrients active</div>';
+  tipEl.innerHTML = html; tipEl.style.display = 'block';
+  const tw = tipEl.offsetWidth, thh = tipEl.offsetHeight;
+  let lx = x + 16, ly = y + 18;
+  if (lx + tw > innerWidth - 12) lx = x - tw - 16;
+  if (ly + thh > innerHeight - 12) ly = y - thh - 14;
+  tipEl.style.left = lx + 'px'; tipEl.style.top = ly + 'px';
+}
+tlEl.addEventListener('mousemove', e => {
+  if (!chartEl) return;
+  const r = chartEl.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right){ hideHover(); return; }
+  const D = state.days;
+  const d = Math.floor(clamp((e.clientX - r.left) / r.width, 0, 0.99999) * D) + 1;
+  if (crossEl){ crossEl.style.display = 'block'; crossEl.style.left = ((d - 0.5) / D * 100) + '%'; }
+  showTip(d, e.clientX, e.clientY);
+});
+tlEl.addEventListener('mouseleave', hideHover);
+tlEl.addEventListener('click', e => {
+  if (!chartEl) return;
+  const r = chartEl.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right) return;
+  const D = state.days;
+  const d = Math.floor(clamp((e.clientX - r.left) / r.width, 0, 0.99999) * D) + 1;
+  state.pinned = (state.pinned === d) ? null : d;
+  renderTimeline(); renderDayCard();
+});
+
+/* ---------------- day card ---------------- */
+const SVG_L = '<svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M7.5 1 2 6l5.5 5" stroke="currentColor" stroke-width="1.6"/></svg>';
+const SVG_R = '<svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M1.5 1 7 6l-5.5 5" stroke="currentColor" stroke-width="1.6"/></svg>';
+function renderDayCard(){
+  const dc = $('#dayCard');
+  if (!state.pinned){ dc.innerHTML = '<span class="dc-hint">Click any day on the chart above to inspect that day’s exact mix.</span>'; return; }
+  const d = clamp(state.pinned, 1, state.days);
+  const mix = dayMix(d);
+  let html = `<div class="dc-nav">
+      <button class="nav-btn" id="dayPrev" aria-label="Previous day"${d <= 1 ? ' disabled' : ''}>${SVG_L}</button>
+      <div><span class="dc-day-num">Day ${d}</span><span class="dc-day-sub">of ${state.days} · ${fmtGal()} gal</span></div>
+      <button class="nav-btn" id="dayNext" aria-label="Next day"${d >= state.days ? ' disabled' : ''}>${SVG_R}</button>
+    </div><div class="dc-mix">`;
+  html += mix.length
+    ? mix.map(n => `<span class="dc-chip"><span class="sw" style="background:${n.color}"></span><b>${esc(n.name||'?')}</b> ${trimNum(num(n.rate))} g/gal × ${fmtGal()} gal <span class="dc-amt">${fmtG(num(n.rate) * state.gal)}</span></span>`).join('')
+    : '<span class="dc-none">nothing dosed this day</span>';
+  html += '</div>';
+  if (mix.length){
+    const t = mix.reduce((a,n) => a + num(n.rate) * state.gal, 0);
+    html += `<div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">${fmtU(t)}</span></div>`;
+  }
+  dc.innerHTML = html;
+  const pv = $('#dayPrev'), nx = $('#dayNext');
+  if (pv) pv.onclick = () => { state.pinned = d - 1; renderTimeline(); renderDayCard(); };
+  if (nx) nx.onclick = () => { state.pinned = d + 1; renderTimeline(); renderDayCard(); };
+}
+
+/* ---------------- phases table ---------------- */
+function renderPhases(){
+  const t = $('#phaseTable'), ph = computePhases(), nuts = state.nutrients;
+  let html = '<thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th>';
+  nuts.forEach(n => html += `<th class="r"><span class="sw sw-sm" style="background:${n.color}"></span>${esc(n.name||'?')}</th>`);
+  html += '</tr></thead><tbody>';
+  if (!nuts.length){
+    html += `<tr><td colspan="4" class="empty">No nutrients registered.</td></tr>`;
+  } else {
+    ph.forEach((p, i) => {
+      html += `<tr><td class="ph-num">${roman(i+1)}</td><td class="ph-days">${p.s}–${p.e}</td><td class="r">${p.e - p.s + 1} d</td><td class="r">${fmt((p.e - p.s + 1) * state.gal, 0)} gal</td>`;
+      nuts.forEach(n => {
+        html += p.act.includes(n)
+          ? `<td class="r">${fmtU(num(n.rate) * state.gal * (p.e - p.s + 1))}</td>`
+          : '<td class="off">·</td>';
+      });
+      html += '</tr>';
+    });
+  }
+  html += '</tbody>';
+  if (nuts.length && ph.length){
+    html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">' + fmt(state.days * state.gal, 0) + ' gal</td>';
+    nuts.forEach(n => {
+      const tt = rowTotal(n);
+      html += isFinite(tt) ? `<td class="r">${fmtU(tt)}</td>` : '<td class="off">·</td>';
+    });
+    html += '</tr></tfoot>';
+  }
+  t.innerHTML = html;
+}
+
+/* ---------------- tally ---------------- */
+function renderTally(){
+  const g = grandTotal();
+  $('#tallyFig').textContent = fmtU(g);
+  $('#tallyEquiv').textContent = `= ${fmtG(g)} · ${fmt(g/LB, 2)} lb`;
+  $('#tallySub').textContent = `across the full ${state.days}-day cycle · ${validNutrients().length} of ${state.nutrients.length} nutrients active`;
+}
+
+/* ---------------- lede inputs & unit toggle ---------------- */
+const daysIn = $('#daysIn'), galIn = $('#galIn');
+const fit = inp => { inp.style.width = Math.max(2, (inp.value + '').length) + 'ch'; };
+daysIn.addEventListener('input', () => {
+  fit(daysIn);
+  const v = Math.round(num(daysIn.value));
+  if (isFinite(v) && v >= 1){ state.days = v; state.pinned = state.pinned ? clamp(state.pinned, 1, v) : null; scheduleRefresh(); }
+});galIn.addEventListener('input', () => {
+  fit(galIn);
+  const v = num(galIn.value);
+  if (isFinite(v) && v >= 0){ state.gal = v; scheduleRefresh(); }
+});
+ $('#unitSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.unit = b.dataset.u;
+  [...$('#unitSeg').children].forEach(x => x.classList.toggle('on', x === b));
+  refresh();
+});
+
+/* ---------------- copy summary & toast ---------------- */
+let toastT = null;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function buildSummary(){
+  const D = state.days, G = state.gal, L = [];
+  L.push('NUTRIENT BATCH LEDGER'); L.push('='.repeat(60));
+  L.push(`Cycle: ${D} days @ ${trimNum(G)} gal/day  ·  total solution: ${fmt(D*G, G%1?1:0)} gal`);
+  L.push(''); L.push('NUTRIENT REGISTER'); L.push('-'.repeat(60));
+  state.nutrients.forEach(n => {
+    const w = windowOf(n), t = rowTotal(n), name = (n.name || '?').padEnd(6);
+    if (!w.ok){ L.push(`${name} — invalid window (start ${n.start}, end ${n.end})`); return; }
+    L.push(`${name} ${trimNum(num(n.rate))} g/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtG(t)}  ≈ ${fmt(t/LB, 1)} lb`);
+  });
+  L.push(''); L.push('BATCHING PHASES'); L.push('-'.repeat(60));
+  computePhases().forEach((p, i) => {
+    const vol = (p.e - p.s + 1) * G;
+    const parts = p.act.map(n => `${n.name} ${fmtG(num(n.rate) * vol)}`);
+    L.push(`Phase ${roman(i+1).padEnd(4)} days ${String(p.s).padStart(3)}–${String(p.e).padEnd(3)} (${p.e - p.s + 1} d, ${fmt(vol,0)} gal): ${parts.length ? parts.join('  ·  ') : '—'}`);
+  });
+  L.push(''); L.push('='.repeat(60));
+  const g = grandTotal();
+  L.push(`GRAND TOTAL: ${fmtG(g)}  ≈ ${fmt(g/1000, 2)} kg  ≈ ${fmt(g/LB, 2)} lb`);
+  return L.join('\n');
+}
+ $('#copyBtn').addEventListener('click', async () => {
+  const txt = buildSummary();
+  try { await navigator.clipboard.writeText(txt); toast('Summary copied to clipboard'); }
+  catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Summary copied to clipboard'); }
+    catch(err){ toast('Copy failed — clipboard unavailable'); }
+    ta.remove();
+  }
+});
+
+/* ---------------- boot ---------------- */
+let rz;
+window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(renderTimeline); });
+window.addEventListener('load', renderTimeline); /* re-measure once fonts are in */
+fit(daysIn); fit(galIn);
+rebuildRegister();
+refresh();
+</script>
+
+<script>
+/* ═════════ i18n layer — EN / 中文 toggle ═════════ */
+(function () {
+  'use strict';
+  var lang = 'en';
+  var ZH = /[\u4e00-\u9fff]/;
+
+  /* exact string dictionary — extend here for anything I couldn't see (tooltips etc.) */
+  var DICT = {
+    'Hydroponic feed planning · Worksheet no. 001': '水培施肥规划 · 工作表第 001 号',
+    'Nutrient Batch Ledger': '养分批次台账',
+    'Dry-fertilizer requirements figured from reservoir volume, per-gallon dosing rates and application windows.':
+      '根据储液箱容积、每加仑投配率与施用窗口，核算干肥需求。',
+    'Display unit': '显示单位',
+    'Nutrient register': '养分清单',
+    'Add nutrient': '添加养分',
+    'Nutrient': '养分', 'Rate': '投配率', 'Window (days)': '施用窗口（天）',
+    'Days used': '使用天数', 'Total required': '需求总量',
+    'No nutrients registered — add one to begin.': '尚未登记养分——请先添加一项。',
+    'g/gal': '克/加仑',
+    'incomplete': '信息不全', 'outside cycle': '超出周期',
+    'start after end': '开始日大于结束日', 'clamped to cycle': '已按周期截断',
+    'Application windows': '施用窗口',
+    'hover to inspect a day · click to pin it': '悬停查看每日详情 · 点击可固定',
+    'Phases': '阶段', 'no nutrients registered yet': '尚未登记养分',
+    'Daily total': '当日合计',
+    'Batching phases': '配肥阶段', 'amounts to weigh per phase': '各阶段需称取的用量',
+    'Phase': '阶段', 'Days': '日期', 'Length': '时长', 'Volume': '水量', 'Total': '合计',
+    'Grand total — all dry nutrients': '干肥总量——全部养分合计',
+    'Copy summary': '复制摘要',
+    'All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · assumes constant daily volume':
+      '所有数字均在本地计算 · 数据不会离开本页 · 1 磅 = 453.592 克 · 假设每日水量恒定',
+    'HYDROPONIC FEED · BATCH SCHEDULE ·': '水培施肥 · 批次计划 ·',
+    'DAY CYCLE': '天循环',
+    'g': '克', 'kg': '千克', 'lb': '磅', 'oz': '盎司',
+    'Summary copied': '摘要已复制', 'Copied to clipboard': '已复制到剪贴板', 'Copied!': '已复制！',
+    'Cycle length in days': '周期天数', 'Gallons of solution per day': '每日营养液加仑数',
+    'Nutrient name': '养分名称', 'Rate in grams per gallon': '每加仑投配克数',
+    'Start day': '开始日', 'End day': '结束日',
+    'Previous day': '前一天', 'Next day': '后一天'
+  };
+
+  /* unit conversion for numeric strings, e.g. "1,800 g" → "1,800 克" */
+  function zhUnits(s) {
+    return s
+      .replace(/g\/gal/g, '克/加仑')
+      .replace(/(?<=[\d,])\s?gal\b/g, ' 加仑')
+      .replace(/(?<=[\d,])\s?kg\b/g, ' 千克')
+      .replace(/(?<=[\d,])\s?lb\b/g, ' 磅')
+      .replace(/(?<=[\d,])\s?oz\b/g, ' 盎司')
+      .replace(/(?<=[\d,])\s?g\b/g, ' 克')
+      .replace(/(?<=[\d,])\s?d\b/g, ' 天');
+  }
+
+  /* parameterized templates, e.g. "Day 15" → "第 15 天" */
+  var RX = [
+    [/^across the full (\d+)-day cycle · (\d+) of (\d+) nutrients active$/,
+      function (m) { return '覆盖全部 ' + m[1] + ' 天周期 · ' + m[2] + '/' + m[3] + ' 项养分生效'; }],
+    [/^of (\d+) · (.+)$/, function (m) { return '共 ' + m[1] + ' 天 · ' + zhUnits(m[2]); }],
+    [/^Day (\d+) · (.+)$/, function (m) { return '第 ' + m[1] + ' 天 · ' + zhUnits(m[2]); }],
+    [/^Day (\d+)$/, function (m) { return '第 ' + m[1] + ' 天'; }],
+    [/^Phase ([IVXL]+) · days ([\d\-–]+)$/, function (m) { return '阶段 ' + m[1] + ' · 第 ' + m[2] + ' 天'; }],
+    [/^Remove (.+)$/, function (m) { return '移除 ' + m[1]; }],
+    [/^D(\d+)$/, function (m) { return '第' + m[1] + '天'; }],
+    [/^(\d[\d,]*) d$/, function (m) { return m[1] + ' 天'; }]
+  ];
+
+  function tr(s) {
+    if (lang !== 'zh') return s;
+    var m = s.match(/^(\s*)([\s\S]*?)(\s*)$/), core = m[2];
+    if (!core) return s;
+    var out = DICT[core], i, mm;
+    if (!out) for (i = 0; i < RX.length; i++) { mm = core.match(RX[i][0]); if (mm) { out = RX[i][1](mm); break; } }
+    if (!out) out = zhUnits(core);
+    if (out === core) return s;
+    return m[1] + out + m[3];
+  }
+
+  /* translate text nodes; remember originals so EN restores cleanly */
+  var origText = new WeakMap();
+  function applyText(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n;
+    while ((n = w.nextNode())) {
+      var v = n.nodeValue;
+      if (!v || !v.trim()) continue;
+      var p = n.parentElement;
+      if (!p || p.tagName === 'SCRIPT' || p.tagName === 'STYLE') continue;
+      if (lang === 'en') {
+        if (ZH.test(v)) { var o = origText.get(n); if (o !== undefined && o !== v) n.nodeValue = o; }
+        continue;
+      }
+      if (!ZH.test(v)) origText.set(n, v);
+      var t = tr(v);
+      if (t !== v) n.nodeValue = t;
+    }
+  }
+
+  /* translate title / aria-label attributes */
+  var origAttr = new WeakMap();
+  function applyAttrs() {
+    var els = document.querySelectorAll('[aria-label],[title]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      for (var j = 0; j < 2; j++) {
+        var a = j ? 'title' : 'aria-label', v = el.getAttribute(a);
+        if (!v) continue;
+        if (lang === 'zh') {
+          if (ZH.test(v)) continue;
+          var rec = origAttr.get(el) || (rec = {}, origAttr.set(el, rec), rec);
+          if (!(a in rec)) rec[a] = v;
+          var t = tr(v); if (t !== v) el.setAttribute(a, t);
+        } else {
+          var r2 = origAttr.get(el);
+          if (r2 && (a in r2) && r2[a] !== v) el.setAttribute(a, r2[a]);
+        }
+      }
+    }
+  }
+  function applyAll() { applyText(document.body); applyAttrs(); }
+
+  /* the lede sentence — Chinese word order differs, so rebuild it around the SAME inputs (listeners survive) */
+  var ledeRefs = null;
+  function renderLede() {
+    var p = document.querySelector('.lede');
+    if (!p) return;
+    if (!ledeRefs) ledeRefs = {
+      days: document.getElementById('daysIn'), gal: document.getElementById('galIn'),
+      tg: document.getElementById('totalGalFig'), pf: document.getElementById('phaseFig')
+    };
+    var r = ledeRefs, txt = function (s) { p.appendChild(document.createTextNode(s)); };
+    p.textContent = '';
+    if (lang === 'zh') {
+      txt('整个周期 '); p.appendChild(r.days); txt(' 天，每天配制 '); p.appendChild(r.gal);
+      txt(' 加仑营养液，共分 '); p.appendChild(r.pf); txt(' 个施肥阶段，累计周转 ');
+      p.appendChild(r.tg); txt(' 加仑溶液。');
+    } else {
+      txt('Over '); p.appendChild(r.days); txt(' days at '); p.appendChild(r.gal);
+      txt(' gallons of solution per day, the cycle turns over '); p.appendChild(r.tg);
+      txt(' gallons across '); p.appendChild(r.pf); txt(' distinct feed phases.');
+    }
+  }
+
+  /* localize the copy-summary text too */
+  try {
+    var clip = navigator.clipboard;
+    if (clip && clip.writeText) {
+      var origWrite = clip.writeText.bind(clip);
+      clip.writeText = function (s) {
+        if (lang === 'zh' && typeof s === 'string') s = s.split('\n').map(tr).join('\n');
+        return origWrite(s);
+      };
+    }
+  } catch (e) {}
+
+  /* toggle wiring */
+  var seg = document.getElementById('langSeg');
+  function setLang(l) {
+    lang = l;
+    document.documentElement.lang = (l === 'zh') ? 'zh-CN' : 'en';
+    document.title = (l === 'zh') ? '养分批次台账' : 'Nutrient Batch Ledger';
+    if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === l); });
+    try { localStorage.setItem('nbl-lang', l); } catch (e) {}
+    renderLede();
+    applyAll();
+  }
+  if (seg) seg.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-lang]');
+    if (b) setLang(b.dataset.lang);
+  });
+
+  /* re-translate whenever the app redraws (inputs, pinning, tooltips…) */
+  var queued = false;
+  new MutationObserver(function () {
+    if (queued) return;
+    queued = true;
+    queueMicrotask(function () { queued = false; if (lang === 'zh') applyAll(); });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  /* boot — remember last choice */
+  var saved = null;
+  try { saved = localStorage.getItem('nbl-lang'); } catch (e) {}
+  if (saved === 'zh') setLang('zh');
+})();
+</script>
+</body>
+</html>
