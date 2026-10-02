@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Interactive nutrient batch ledger and feed-phase calculator.">
   <title>Nutrient Batch Ledger</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -421,13 +421,34 @@ tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (max-width:760px){
-  .page{padding:32px 18px 48px}
-  .masthead{flex-direction:column;align-items:flex-start;gap:20px}
-  .stamp{width:108px;height:108px}
-  .lede-sec{flex-direction:column;align-items:flex-start}
+  html,body{max-width:100%;overflow-x:hidden;touch-action:manipulation}
+  .page{width:100%;padding:24px 12px 40px}
+  .lang-row{margin-bottom:8px}
+  .masthead{flex-direction:column;align-items:flex-start;gap:14px;padding-bottom:20px}
+  .stamp{display:none}
+  h1{font-size:clamp(34px,11vw,48px)}
+  .mast-sub{font-size:16px}
+  .lede-sec{flex-direction:column;align-items:flex-start;gap:18px;margin-top:30px}
+  .lede{font-size:20px;line-height:1.55}
   .unit-cap{text-align:left}
-  .timeline{--tl-label:76px}
+  .seg{max-width:100%;flex-wrap:wrap}
+  .seg button,.btn,.nav-btn,.del{min-height:44px;touch-action:manipulation}
+  .lede-in,.in-name,.in-num{font-size:16px}
+  section{margin-top:38px}
+  .sec-head{gap:10px;margin-bottom:14px}
+  .scroll-x{max-width:100%;margin:0 -12px;padding:0 12px;overscroll-behavior-x:contain}
+  th,td{padding:10px 9px}
+  .timeline{--tl-label:72px}
+  .tl-label{font-size:12px;padding-right:8px}
+  .day-card{padding:14px 12px;gap:14px;align-items:stretch}
+  .dc-nav{width:100%}
+  .dc-mix{min-width:0;flex-basis:100%;width:100%}
+  .dc-chip{width:100%;flex-wrap:wrap}
+  .dc-total{align-items:flex-start;margin-left:0}
+  .tally{align-items:flex-start;gap:18px}
   .tally-right{text-align:left;margin-left:0}
+  .tally .btn{width:100%;justify-content:center}
+  .fineprint{font-size:9px;letter-spacing:.08em}
 }
 
 /* ═══ language toggle — added ═══ */
@@ -534,34 +555,34 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <td><button class="del" aria-label="Remove B">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="3">
       <td class="c-name"><span class="name-flex"><span class="sw" style="background:#8F6E14"></span>
-        <input class="in-name" value="C" maxlength="18" aria-label="Nutrient name"></span></td>
+        <input class="in-name" value="V 活力" maxlength="18" aria-label="Nutrient name"></span></td>
       <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
       <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="42" aria-label="Start day">
         <span class="dash">–</span>
         <input class="in-num in-end" type="number" min="1" step="1" value="49" aria-label="End day"></td>
       <td class="r"><span class="days-val">8 d</span><span class="days-note"></span></td>
       <td class="r"><div class="tot">2,400 g</div><div class="tot-sub">≈ 5.3 lb</div></td>
-      <td><button class="del" aria-label="Remove C">
+      <td><button class="del" aria-label="Remove V 活力">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="4">
       <td class="c-name"><span class="name-flex"><span class="sw" style="background:#2C5A63"></span>
-        <input class="in-name" value="D" maxlength="18" aria-label="Nutrient name"></span></td>
+        <input class="in-name" value="F 强化" maxlength="18" aria-label="Nutrient name"></span></td>
       <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
       <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="42" aria-label="Start day">
         <span class="dash">–</span>
         <input class="in-num in-end" type="number" min="1" step="1" value="49" aria-label="End day"></td>
       <td class="r"><span class="days-val">8 d</span><span class="days-note"></span></td>
       <td class="r"><div class="tot">2,400 g</div><div class="tot-sub">≈ 5.3 lb</div></td>
-      <td><button class="del" aria-label="Remove D">
+      <td><button class="del" aria-label="Remove F 强化">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr><tr data-id="5">
       <td class="c-name"><span class="name-flex"><span class="sw" style="background:#6D3B52"></span>
-        <input class="in-name" value="E" maxlength="18" aria-label="Nutrient name"></span></td>
-      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="1" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
+        <input class="in-name" value="R 修复" maxlength="18" aria-label="Nutrient name"></span></td>
+      <td class="c-rate r"><input class="in-num in-rate" type="number" min="0" step="0.1" value="0.2" aria-label="Rate in grams per gallon"><span class="unit-note">g/gal</span></td>
       <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="1" aria-label="Start day">
         <span class="dash">–</span>
         <input class="in-num in-end" type="number" min="1" step="1" value="14" aria-label="End day"></td>
       <td class="r"><span class="days-val">14 d</span><span class="days-note"></span></td>
-      <td class="r"><div class="tot">4,200 g</div><div class="tot-sub">≈ 9.3 lb</div></td>
-      <td><button class="del" aria-label="Remove E">
+      <td class="r"><div class="tot">840 g</div><div class="tot-sub">≈ 1.9 lb</div></td>
+      <td><button class="del" aria-label="Remove R 修复">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"></path></svg></button></td></tr></tbody>
       </table>
     </div>
@@ -572,12 +593,12 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <span class="sec-num">02</span><h2>Application windows</h2><span class="sec-rule"></span>
       <span class="sec-hint">hover to inspect a day · click to pin it</span>
     </div>
-    <div class="timeline" id="timeline"><div class="tl-grid"><div class="tl-corner ph">Phases</div><div class="tl-phases"><div class="ph-band" style="left: 0%; width: 22.2222%;" title="Phase I · days 1–14" data-px="200"><span>1–14</span></div><div class="ph-band alt" style="left: 22.2222%; width: 42.8571%;" title="Phase II · days 15–41" data-px="385.71428571428567"><span>15–41</span></div><div class="ph-band" style="left: 65.0794%; width: 12.6984%;" title="Phase III · days 42–49" data-px="114.28571428571428"><span>42–49</span></div><div class="ph-band alt" style="left: 77.7778%; width: 22.2222%;" title="Phase IV · days 50–63" data-px="200"><span>50–63</span></div></div><div class="tl-corner ax"></div><div class="tl-ruler"><span class="tl-tick" style="left: 0%;">1</span><span class="tl-tick" style="left: 7.93651%;">6</span><span class="tl-tick" style="left: 15.873%;">11</span><span class="tl-tick" style="left: 23.8095%;">16</span><span class="tl-tick" style="left: 31.746%;">21</span><span class="tl-tick" style="left: 39.6825%;">26</span><span class="tl-tick" style="left: 47.6191%;">31</span><span class="tl-tick" style="left: 55.5556%;">36</span><span class="tl-tick" style="left: 63.4921%;">41</span><span class="tl-tick" style="left: 71.4286%;">46</span><span class="tl-tick" style="left: 79.3651%;">51</span><span class="tl-tick" style="left: 87.3016%;">56</span><span class="tl-tick" style="left: 95.2381%;">61</span><span class="tl-tick t-last" style="left: 100%;">63</span></div><div class="tl-label"><span class="sw" style="background: rgb(47, 107, 63);"></span><span class="tl-name">A</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="1" style="background: rgb(47, 107, 63); left: 0%; width: 100%; --i: 0;"><span class="tl-bar-label">6 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(180, 85, 45);"></span><span class="tl-name">B</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="2" style="background: rgb(180, 85, 45); left: 0%; width: 100%; --i: 1;"><span class="tl-bar-label">3 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(143, 110, 20);"></span><span class="tl-name">C</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="3" style="background: rgb(143, 110, 20); left: 65.0794%; width: 12.6984%; --i: 2;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(44, 90, 99);"></span><span class="tl-name">D</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="4" style="background: rgb(44, 90, 99); left: 65.0794%; width: 12.6984%; --i: 3;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(109, 59, 82);"></span><span class="tl-name">E</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="5" style="background: rgb(109, 59, 82); left: 0%; width: 22.2222%; --i: 4;"><span class="tl-bar-label">1 g/gal</span></div></div></div><div class="tl-under" style="left: 132px;"><div class="tl-grid-line g-edge" style="left: 0%;"></div><div class="tl-grid-line" style="left: 7.93651%;"></div><div class="tl-grid-line" style="left: 15.873%;"></div><div class="tl-grid-line" style="left: 23.8095%;"></div><div class="tl-grid-line" style="left: 31.746%;"></div><div class="tl-grid-line" style="left: 39.6825%;"></div><div class="tl-grid-line" style="left: 47.6191%;"></div><div class="tl-grid-line" style="left: 55.5556%;"></div><div class="tl-grid-line" style="left: 63.4921%;"></div><div class="tl-grid-line" style="left: 71.4286%;"></div><div class="tl-grid-line" style="left: 79.3651%;"></div><div class="tl-grid-line" style="left: 87.3016%;"></div><div class="tl-grid-line" style="left: 95.2381%;"></div><div class="tl-grid-line g-edge" style="left: 100%;"></div><div class="tl-pin" style="left: 0%; width: 1.5873%;"></div></div><div class="tl-over" style="left: 132px;"><div class="tl-cross"></div><span class="pin-flag" style="left: 0.793651%;">D1</span></div></div>
+    <div class="timeline" id="timeline"><div class="tl-grid"><div class="tl-corner ph">Phases</div><div class="tl-phases"><div class="ph-band" style="left: 0%; width: 22.2222%;" title="Phase I · days 1–14" data-px="200"><span>1–14</span></div><div class="ph-band alt" style="left: 22.2222%; width: 42.8571%;" title="Phase II · days 15–41" data-px="385.71428571428567"><span>15–41</span></div><div class="ph-band" style="left: 65.0794%; width: 12.6984%;" title="Phase III · days 42–49" data-px="114.28571428571428"><span>42–49</span></div><div class="ph-band alt" style="left: 77.7778%; width: 22.2222%;" title="Phase IV · days 50–63" data-px="200"><span>50–63</span></div></div><div class="tl-corner ax"></div><div class="tl-ruler"><span class="tl-tick" style="left: 0%;">1</span><span class="tl-tick" style="left: 7.93651%;">6</span><span class="tl-tick" style="left: 15.873%;">11</span><span class="tl-tick" style="left: 23.8095%;">16</span><span class="tl-tick" style="left: 31.746%;">21</span><span class="tl-tick" style="left: 39.6825%;">26</span><span class="tl-tick" style="left: 47.6191%;">31</span><span class="tl-tick" style="left: 55.5556%;">36</span><span class="tl-tick" style="left: 63.4921%;">41</span><span class="tl-tick" style="left: 71.4286%;">46</span><span class="tl-tick" style="left: 79.3651%;">51</span><span class="tl-tick" style="left: 87.3016%;">56</span><span class="tl-tick" style="left: 95.2381%;">61</span><span class="tl-tick t-last" style="left: 100%;">63</span></div><div class="tl-label"><span class="sw" style="background: rgb(47, 107, 63);"></span><span class="tl-name">A</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="1" style="background: rgb(47, 107, 63); left: 0%; width: 100%; --i: 0;"><span class="tl-bar-label">6 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(180, 85, 45);"></span><span class="tl-name">B</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="2" style="background: rgb(180, 85, 45); left: 0%; width: 100%; --i: 1;"><span class="tl-bar-label">3 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(143, 110, 20);"></span><span class="tl-name">V 活力</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="3" style="background: rgb(143, 110, 20); left: 65.0794%; width: 12.6984%; --i: 2;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(44, 90, 99);"></span><span class="tl-name">F 强化</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="4" style="background: rgb(44, 90, 99); left: 65.0794%; width: 12.6984%; --i: 3;"><span class="tl-bar-label">1 g/gal</span></div></div><div class="tl-label"><span class="sw" style="background: rgb(109, 59, 82);"></span><span class="tl-name">R 修复</span></div><div class="tl-track"><div class="tl-bar" data-bar-id="5" style="background: rgb(109, 59, 82); left: 0%; width: 22.2222%; --i: 4;"><span class="tl-bar-label">0.2 g/gal</span></div></div></div><div class="tl-under" style="left: 132px;"><div class="tl-grid-line g-edge" style="left: 0%;"></div><div class="tl-grid-line" style="left: 7.93651%;"></div><div class="tl-grid-line" style="left: 15.873%;"></div><div class="tl-grid-line" style="left: 23.8095%;"></div><div class="tl-grid-line" style="left: 31.746%;"></div><div class="tl-grid-line" style="left: 39.6825%;"></div><div class="tl-grid-line" style="left: 47.6191%;"></div><div class="tl-grid-line" style="left: 55.5556%;"></div><div class="tl-grid-line" style="left: 63.4921%;"></div><div class="tl-grid-line" style="left: 71.4286%;"></div><div class="tl-grid-line" style="left: 79.3651%;"></div><div class="tl-grid-line" style="left: 87.3016%;"></div><div class="tl-grid-line" style="left: 95.2381%;"></div><div class="tl-grid-line g-edge" style="left: 100%;"></div><div class="tl-pin" style="left: 0%; width: 1.5873%;"></div></div><div class="tl-over" style="left: 132px;"><div class="tl-cross"></div><span class="pin-flag" style="left: 0.793651%;">D1</span></div></div>
     <div class="day-card" id="dayCard"><div class="dc-nav">
       <button class="nav-btn" id="dayPrev" aria-label="Previous day" disabled="disabled"><svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M7.5 1 2 6l5.5 5" stroke="currentColor" stroke-width="1.6"></path></svg></button>
       <div><span class="dc-day-num">Day 1</span><span class="dc-day-sub">of 63 · 300 gal</span></div>
       <button class="nav-btn" id="dayNext" aria-label="Next day"><svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M1.5 1 7 6l-5.5 5" stroke="currentColor" stroke-width="1.6"></path></svg></button>
-    </div><div class="dc-mix"><span class="dc-chip"><span class="sw" style="background:#2F6B3F"></span><b>A</b> 6 g/gal × 300 gal <span class="dc-amt">1,800 g</span></span><span class="dc-chip"><span class="sw" style="background:#B4552D"></span><b>B</b> 3 g/gal × 300 gal <span class="dc-amt">900 g</span></span><span class="dc-chip"><span class="sw" style="background:#6D3B52"></span><b>E</b> 1 g/gal × 300 gal <span class="dc-amt">300 g</span></span></div><div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">3,000 g</span></div></div>
+    </div><div class="dc-mix"><span class="dc-chip"><span class="sw" style="background:#2F6B3F"></span><b>A</b> 6 g/gal × 300 gal <span class="dc-amt">1,800 g</span></span><span class="dc-chip"><span class="sw" style="background:#B4552D"></span><b>B</b> 3 g/gal × 300 gal <span class="dc-amt">900 g</span></span><span class="dc-chip"><span class="sw" style="background:#6D3B52"></span><b>R 修复</b> 0.2 g/gal × 300 gal <span class="dc-amt">60 g</span></span></div><div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">2,760 g</span></div></div>
   </section>
 
   <section>
@@ -586,7 +607,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <span class="sec-hint">amounts to weigh per phase</span>
     </div>
     <div class="scroll-x">
-      <table id="phaseTable"><thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th><th class="r"><span class="sw sw-sm" style="background:#2F6B3F"></span>A</th><th class="r"><span class="sw sw-sm" style="background:#B4552D"></span>B</th><th class="r"><span class="sw sw-sm" style="background:#8F6E14"></span>C</th><th class="r"><span class="sw sw-sm" style="background:#2C5A63"></span>D</th><th class="r"><span class="sw sw-sm" style="background:#6D3B52"></span>E</th></tr></thead><tbody><tr><td class="ph-num">I</td><td class="ph-days">1–14</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="r">4,200 g</td></tr><tr><td class="ph-num">II</td><td class="ph-days">15–41</td><td class="r">27 d</td><td class="r">8,100 gal</td><td class="r">48,600 g</td><td class="r">24,300 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr><tr><td class="ph-num">III</td><td class="ph-days">42–49</td><td class="r">8 d</td><td class="r">2,400 gal</td><td class="r">14,400 g</td><td class="r">7,200 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="off">·</td></tr><tr><td class="ph-num">IV</td><td class="ph-days">50–63</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr></tbody><tfoot><tr><td colspan="3" class="r">Total</td><td class="r">18,900 gal</td><td class="r">113,400 g</td><td class="r">56,700 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="r">4,200 g</td></tr></tfoot></table>
+      <table id="phaseTable"><thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th><th class="r"><span class="sw sw-sm" style="background:#2F6B3F"></span>A</th><th class="r"><span class="sw sw-sm" style="background:#B4552D"></span>B</th><th class="r"><span class="sw sw-sm" style="background:#8F6E14"></span>V 活力</th><th class="r"><span class="sw sw-sm" style="background:#2C5A63"></span>F 强化</th><th class="r"><span class="sw sw-sm" style="background:#6D3B52"></span>R 修复</th></tr></thead><tbody><tr><td class="ph-num">I</td><td class="ph-days">1–14</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="r">840 g</td></tr><tr><td class="ph-num">II</td><td class="ph-days">15–41</td><td class="r">27 d</td><td class="r">8,100 gal</td><td class="r">48,600 g</td><td class="r">24,300 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr><tr><td class="ph-num">III</td><td class="ph-days">42–49</td><td class="r">8 d</td><td class="r">2,400 gal</td><td class="r">14,400 g</td><td class="r">7,200 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="off">·</td></tr><tr><td class="ph-num">IV</td><td class="ph-days">50–63</td><td class="r">14 d</td><td class="r">4,200 gal</td><td class="r">25,200 g</td><td class="r">12,600 g</td><td class="off">·</td><td class="off">·</td><td class="off">·</td></tr></tbody><tfoot><tr><td colspan="3" class="r">Total</td><td class="r">18,900 gal</td><td class="r">113,400 g</td><td class="r">56,700 g</td><td class="r">2,400 g</td><td class="r">2,400 g</td><td class="r">840 g</td></tr></tfoot></table>
     </div>
   </section>
 
@@ -596,8 +617,8 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <div class="tally-sub" id="tallySub">across the full 63-day cycle · 5 of 5 nutrients active</div>
     </div>
     <div class="tally-right">
-      <div class="tally-fig" id="tallyFig">179,100 g</div>
-      <div class="tally-equiv" id="tallyEquiv">= 179,100 g · 394.85 lb</div>
+      <div class="tally-fig" id="tallyFig">175,740 g</div>
+      <div class="tally-equiv" id="tallyEquiv">= 175,740 g · 387.44 lb</div>
     </div>
     <button class="btn btn-ghost" id="copyBtn">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" stroke="currentColor" stroke-width="1.3"></rect><path d="M8.5 3.5v-2h-7v7h2" stroke="currentColor" stroke-width="1.3"></path></svg>
@@ -625,9 +646,9 @@ const state = {
   nutrients: [
     {id:uid(), name:'A', rate:6, start:1,  end:63, color:PALETTE[0]},
     {id:uid(), name:'B', rate:3, start:1,  end:63, color:PALETTE[1]},
-    {id:uid(), name:'C', rate:1, start:42, end:49, color:PALETTE[2]},
-    {id:uid(), name:'D', rate:1, start:42, end:49, color:PALETTE[3]},
-    {id:uid(), name:'E', rate:1, start:1,  end:14, color:PALETTE[4]}, /* rate & window were unspecified — edit freely */
+    {id:uid(), name:'V 活力', rate:1, start:42, end:49, color:PALETTE[2]},
+    {id:uid(), name:'F 强化', rate:1, start:42, end:49, color:PALETTE[3]},
+    {id:uid(), name:'R 修复', rate:0.2, start:1,  end:14, color:PALETTE[4]},
   ]
 };
 let animateNext = true;
@@ -976,8 +997,7 @@ function renderPhases(){
     nuts.forEach(n => {
       const tt = rowTotal(n);
       html += isFinite(tt) ? `<td class="r">${fmtU(tt)}</td>` : '<td class="off">·</td>';
-    });
-    html += '</tr></tfoot>';
+    });    html += '</tr></tfoot>';
   }
   t.innerHTML = html;
 }
@@ -997,7 +1017,8 @@ daysIn.addEventListener('input', () => {
   fit(daysIn);
   const v = Math.round(num(daysIn.value));
   if (isFinite(v) && v >= 1){ state.days = v; state.pinned = state.pinned ? clamp(state.pinned, 1, v) : null; scheduleRefresh(); }
-});galIn.addEventListener('input', () => {
+});
+galIn.addEventListener('input', () => {
   fit(galIn);
   const v = num(galIn.value);
   if (isFinite(v) && v >= 0){ state.gal = v; scheduleRefresh(); }
@@ -1052,6 +1073,7 @@ function buildSummary(){
 let rz;
 window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(renderTimeline); });
 window.addEventListener('load', renderTimeline); /* re-measure once fonts are in */
+['gesturestart','gesturechange','gestureend'].forEach(type => document.addEventListener(type, e => e.preventDefault(), {passive:false}));
 fit(daysIn); fit(galIn);
 rebuildRegister();
 refresh();
