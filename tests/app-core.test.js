@@ -107,3 +107,22 @@ test('parseViewHash distinguishes edit and view modes', () => {
   assert.equal(parsed.mode, 'view');
   assert.equal(parsed.snapshot.days, 7);
 });
+
+
+test('homepage lock requires PIN for a fresh editor session', () => {
+  assert.equal(Core.requiresHomepageLock('', false), true);
+});
+
+test('homepage lock stays open after session unlock', () => {
+  assert.equal(Core.requiresHomepageLock('', true), false);
+});
+
+test('homepage lock never blocks frozen view links', () => {
+  assert.equal(Core.requiresHomepageLock('#view=abc', false), false);
+});
+
+test('homepage PIN accepts only the configured code', () => {
+  assert.equal(Core.verifyHomepagePin('1800911'), true);
+  assert.equal(Core.verifyHomepagePin('1800910'), false);
+  assert.equal(Core.verifyHomepagePin(' 1800911 '), false);
+});
