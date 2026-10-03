@@ -401,7 +401,8 @@ tr.invalid .tot{color:var(--ink-3)}
 .ph-band.alt{background:rgba(32,41,31,.06)}
 .ph-band+.ph-band{border-left:1px dashed var(--line-2)}
 .ph-band span{font-size:10px;letter-spacing:.06em;color:var(--ink-2);white-space:nowrap}
-.tl-ruler{position:relative;height:30px;border-bottom:1.5px solid var(--ink)}
+.tl-phases,.tl-weeks,.tl-ruler{position:relative;z-index:1}
+.tl-ruler{height:30px;border-bottom:1.5px solid var(--ink)}
 .tl-tick{position:absolute;bottom:6px;font-size:10px;color:var(--ink-2);transform:translateX(2px)}
 .tl-tick.t-last{transform:translateX(calc(-100% - 2px))}
 .tl-label{position:relative;z-index:1;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;padding-right:14px;border-bottom:1px dotted var(--line);overflow:hidden;white-space:nowrap}
@@ -1060,7 +1061,7 @@ function renderTimeline(){
   const weekCell = h('div','tl-weeks');
   grid.append(cw, weekCell);
 
-  const c2 = h('div','tl-corner ax');
+  const c2 = h('div','tl-corner ax day-corner'); c2.textContent = 'Days';
   const rulCell = h('div','tl-ruler');
   grid.append(c2, rulCell);
 
@@ -1440,7 +1441,7 @@ if(!bootInvalid){
     'start after end': '开始日大于结束日', 'clamped to cycle': '已按周期截断',
     'Application windows': '施用窗口',
     'hover to inspect a day · click to pin it': '悬停查看每日详情 · 点击可固定',
-    'Phases': '阶段', 'Weeks': '周', 'no nutrients registered yet': '尚未登记养分',
+    'Phases': '阶段', 'Weeks': '周', 'Days': '天', 'no nutrients registered yet': '尚未登记养分',
     'Daily total': '当日合计',
     'Batching phases': '配肥阶段', 'amounts to measure per phase': '各阶段需量取的用量',
     'Phase': '阶段', 'Days': '日期', 'Length': '时长', 'Volume': '水量', 'Total': '合计',
