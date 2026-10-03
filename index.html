@@ -390,7 +390,8 @@ tr.invalid .tot{color:var(--ink-3)}
 .timeline{--tl-label:132px;position:relative;user-select:none;-webkit-user-select:none;cursor:crosshair;touch-action:manipulation}
 .tl-grid{display:grid;grid-template-columns:var(--tl-label) 1fr}
 .tl-corner{border-bottom:1px solid var(--line)}
-.tl-corner.ph{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:flex-end;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.tl-corner.ph,.day-corner{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:flex-end;padding-bottom:6px}
+.tl-corner.ph{border-bottom:1px dashed var(--line)}
 .tl-corner.ax{border-bottom:1.5px solid var(--ink)}
 .tl-phases{position:relative;height:26px;border-bottom:1px dashed var(--line)}
 .tl-weeks{position:relative;height:25px;border-bottom:1px dashed var(--line)}
@@ -485,6 +486,7 @@ body.view-mode .in-num,
 body.view-mode .in-kind{border-bottom-color:transparent;pointer-events:none}
 body.view-mode .in-kind{appearance:none}
 body.view-mode .window-warning{display:none}
+body.view-mode #phaseSection{display:none!important}
 .invalid-snapshot{max-width:720px;margin:18vh auto;padding:36px;border:2px solid var(--ink);background:var(--card)}
 .invalid-snapshot h1{font-size:34px;margin-bottom:14px}
 .invalid-snapshot p{font-family:var(--serif);font-size:18px;margin-bottom:24px;color:var(--ink-2)}
@@ -742,7 +744,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
     </div><div class="dc-mix"><span class="dc-chip"><span class="sw" style="background:#2F6B3F"></span><b>A</b> 6 g/gal × 300 gal <span class="dc-amt">1,800 g</span></span><span class="dc-chip"><span class="sw" style="background:#B4552D"></span><b>B</b> 3 g/gal × 300 gal <span class="dc-amt">900 g</span></span><span class="dc-chip"><span class="sw" style="background:#6D3B52"></span><b>R 修复</b> 0.2 g/gal × 300 gal <span class="dc-amt">60 g</span></span></div><div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">2,760 g</span></div></div>
   </section>
 
-  <section>
+  <section id="phaseSection">
     <div class="sec-head">
       <span class="sec-num">03</span><h2>Batching phases</h2><span class="sec-rule"></span>
       <span class="sec-hint">amounts to measure per phase</span>

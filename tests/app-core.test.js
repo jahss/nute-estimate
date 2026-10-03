@@ -215,3 +215,19 @@ test('mobile timeline keeps day 1, uses compact week numbers, and dismisses tool
   assert.match(html, /renderTimeline\(\); renderDayCard\(\); hideHover\(\);/);
   assert.match(html, /document\.addEventListener\('pointerdown',[\s\S]*!tlEl\.contains\(e\.target\)[\s\S]*hideHover\(\)/);
 });
+
+
+test('Days corner matches compact timeline header typography', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /\.tl-corner\.ph,\.day-corner\{font-size:10px;letter-spacing:\.18em;text-transform:uppercase;color:var\(--ink-3\)/);
+});
+
+test('shared view hides batching phases while editor keeps the section', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /<section id="phaseSection">[\s\S]*<h2>Batching phases<\/h2>/);
+  assert.match(html, /body\.view-mode #phaseSection\{display:none!important\}/);
+});
