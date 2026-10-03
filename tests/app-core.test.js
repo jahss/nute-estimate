@@ -190,3 +190,15 @@ test('PWA install page exposes manifest, install action, and service worker regi
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'), /"display"\s*:\s*"standalone"/);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8'), /\.\/install\.html/);
 });
+
+
+test('timeline ruler uses seven-day ticks and keeps the final cycle day', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /for \(let d = 7; d <= D; d \+= 7\) marks\.push\(d\)/);
+  assert.match(html, /marks\[marks\.length - 1\] !== D/);
+  assert.doesNotMatch(html, /for \(let b = 1; b <= D; b \+= step\)/);
+  assert.match(html, /label\.textContent='Week '\+w\.week/);
+  assert.match(html, /c2\.textContent = 'Days'/);
+});

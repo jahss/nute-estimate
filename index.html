@@ -1099,15 +1099,19 @@ function renderTimeline(){
   const W = rc.width || 1;
   under.style.width = W + 'px'; over.style.width = W + 'px';
 
-  /* ruler ticks + gridlines */
-  const step = pickStep(D, W);
-  const marks = []; for (let b = 1; b <= D; b += step) marks.push(b);
-  marks.forEach((m, i) => gl(under, (m-1)/D*100, i === 0 ? ' g-edge' : ''));
-  gl(under, 100, ' g-edge');
-  let labels = marks.slice();
-  if (labels.length > 1 && (D - labels[labels.length-1] + 1) * (W/D) < 36) labels.pop();
-  labels.forEach(m => { const t = h('span','tl-tick'); t.textContent = m; t.style.left = ((m-1)/D*100) + '%'; rulCell.appendChild(t); });
-  const te = h('span','tl-tick t-last'); te.textContent = D; te.style.left = '100%'; rulCell.appendChild(te);
+  /* weekly day ticks + gridlines */
+  const marks = [];
+  for (let d = 7; d <= D; d += 7) marks.push(d);
+  if (!marks.length || marks[marks.length - 1] !== D) marks.push(D);
+  gl(under, 0, ' g-edge');
+  marks.forEach(m => {
+    const pct = (m / D) * 100;
+    gl(under, pct, m === D ? ' g-edge' : '');
+    const t = h('span','tl-tick' + (m === D ? ' t-last' : ''));
+    t.textContent = m;
+    t.style.left = pct + '%';
+    rulCell.appendChild(t);
+  });
 
   /* week bands */
   NuteCore.weekBands(D).forEach(w => {
