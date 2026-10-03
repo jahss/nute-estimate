@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Interactive nutrient batch ledger and feed-phase calculator.">
-  <title>Nutrient Batch Ledger</title>
+  <title>Estimate/Feed</title>
   <script>
   (function(){
     var isView = location.hash.indexOf('#view=') === 0;
@@ -374,7 +374,9 @@ tr.invalid .tot{color:var(--ink-3)}
 .del{background:transparent;border:none;color:var(--ink-3);cursor:pointer;padding:6px;line-height:0;transition:color .15s}
 .del:hover{color:var(--rust)}
 .win-stack{display:flex;flex-direction:column;gap:6px}
-.win-line{min-height:29px;display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.win-line{min-height:29px;display:flex;align-items:center;justify-content:flex-end;gap:7px;font-size:14px}
+.win-line .in-num{font-size:14px}
+.unit-note{font-size:11px;line-height:1;color:var(--ink-2);white-space:nowrap}
 .c-win .win-line{justify-content:flex-start}
 .win-line.invalid .in-num{border-bottom-color:var(--rust)}
 .win-remove{background:transparent;border:none;color:var(--ink-3);cursor:pointer;font:600 14px/1 var(--mono);padding:5px}
@@ -391,6 +393,10 @@ tr.invalid .tot{color:var(--ink-3)}
 .tl-corner.ph{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:flex-end;padding-bottom:6px;border-bottom:1px dashed var(--line)}
 .tl-corner.ax{border-bottom:1.5px solid var(--ink)}
 .tl-phases{position:relative;height:26px;border-bottom:1px dashed var(--line)}
+.tl-weeks{position:relative;height:25px;border-bottom:1px dashed var(--line)}
+.week-band{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;border-left:1px dashed var(--line);overflow:hidden}
+.week-band:last-child{border-right:1px dashed var(--line)}
+.week-band span{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
 .ph-band{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ph-band.alt{background:rgba(32,41,31,.06)}
 .ph-band+.ph-band{border-left:1px dashed var(--line-2)}
@@ -524,8 +530,18 @@ body.view-mode .window-warning{display:none}
   @page{size:landscape;margin:10mm}
   html,body{background:#fff!important;color:#111!important;overflow:visible!important}
   body::after{display:none!important}
-  .page{max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
+  .page{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;display:flex!important;flex-direction:column!important}
   .page>*{animation:none!important}
+  .lang-row{order:0}
+  .masthead{order:1}
+  .rule-tt{order:1}
+  #scheduleSection{order:2;margin-top:14px!important;border-top:2px solid #111;padding-top:12px}
+  .lede-sec{order:3}
+  .page>section:not(#scheduleSection):not(.lede-sec){order:4}
+  .rule-tt2{order:5}
+  #scheduleSection .sec-head{margin-bottom:10px}
+  #scheduleSection .sec-head h2{font-size:14px}
+  #scheduleSection .sec-hint{display:none!important}
   .lang-row,.unit-groups,#addBtn,#shareBtn,#copyBtn,.view-actions,.drag-handle,.del,.add-window,.remove-window,.toast,.tl-tip,.day-card{display:none!important}
   .scroll-x{overflow:visible!important;margin:0!important;padding:0!important}
   #regTable th,#regTable td,#phaseTable th,#phaseTable td{position:static!important;left:auto!important;box-shadow:none!important;background:transparent!important}
@@ -536,7 +552,13 @@ body.view-mode .window-warning{display:none}
   .stamp{width:105px;height:105px}
   .lede-sec{margin-top:20px}
   .lede{font-size:18px;max-width:none}
-  .timeline{--tl-label:100px;break-inside:avoid;page-break-inside:avoid}
+  .timeline{--tl-label:112px;break-inside:avoid;page-break-inside:avoid;font-size:12px}
+  .tl-phases{display:none!important}
+  .tl-weeks{height:28px}
+  .week-band span{font-size:10px;font-weight:600}
+  .tl-ruler{height:32px}
+  .tl-track{height:48px}
+  .tl-bar{top:12px;height:24px}
   .tl-bar,.sw{print-color-adjust:exact;-webkit-print-color-adjust:exact}
   #regTable tr,#phaseTable tr{break-inside:avoid;page-break-inside:avoid}
   #regTable thead,#phaseTable thead{display:table-header-group}
@@ -602,14 +624,14 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
   <header class="masthead">
     <div>
       <div class="eyebrow">Hydroponic feed planning · Worksheet no. 001</div>
-      <h1>Nutrient Batch Ledger</h1>
+      <h1>Estimate/Feed</h1>
       <p class="mast-sub">Nutrient requirements figured from reservoir volume, per-gallon dosing rates and application windows.</p>
     </div>
     <svg class="stamp" viewBox="0 0 130 130" aria-hidden="true">
       <defs><path id="stampArc" d="M65 65 m -46 0 a 46 46 0 1 1 92 0 a 46 46 0 1 1 -92 0"></path></defs>
       <circle cx="65" cy="65" r="60" fill="none" stroke="currentColor" stroke-width="2.5"></circle>
       <circle cx="65" cy="65" r="36" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-      <text class="arc-t"><textPath href="#stampArc">HYDROPONIC FEED · BATCH SCHEDULE · </textPath></text>
+      <text class="arc-t"><textPath href="#stampArc">ESTIMATE / FEED · BATCH SCHEDULE · </textPath></text>
       <text id="stampNum" x="65" y="63" text-anchor="middle" font-size="21" font-weight="600">63</text>
       <text x="65" y="78" text-anchor="middle" font-size="7.5" letter-spacing="2">DAY CYCLE</text>
     </svg>
@@ -706,7 +728,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
     </div>
   </section>
 
-  <section>
+  <section id="scheduleSection">
     <div class="sec-head">
       <span class="sec-num">02</span><h2>Application windows</h2><span class="sec-rule"></span>
       <span class="sec-hint">hover to inspect a day · click to pin it</span>
@@ -1034,6 +1056,10 @@ function renderTimeline(){
   const phCell = h('div','tl-phases');
   grid.append(c1, phCell);
 
+  const cw = h('div','tl-corner ph'); cw.textContent = 'Weeks';
+  const weekCell = h('div','tl-weeks');
+  grid.append(cw, weekCell);
+
   const c2 = h('div','tl-corner ax');
   const rulCell = h('div','tl-ruler');
   grid.append(c2, rulCell);
@@ -1070,6 +1096,7 @@ function renderTimeline(){
   under.style.left = off + 'px'; over.style.left = off + 'px';
   chartEl = rulCell;
   const W = rc.width || 1;
+  under.style.width = W + 'px'; over.style.width = W + 'px';
 
   /* ruler ticks + gridlines */
   const step = pickStep(D, W);
@@ -1080,6 +1107,16 @@ function renderTimeline(){
   if (labels.length > 1 && (D - labels[labels.length-1] + 1) * (W/D) < 36) labels.pop();
   labels.forEach(m => { const t = h('span','tl-tick'); t.textContent = m; t.style.left = ((m-1)/D*100) + '%'; rulCell.appendChild(t); });
   const te = h('span','tl-tick t-last'); te.textContent = D; te.style.left = '100%'; rulCell.appendChild(te);
+
+  /* week bands */
+  NuteCore.weekBands(D).forEach(w => {
+    const b=h('div','week-band');
+    b.style.left=((w.start-1)/D*100)+'%';
+    b.style.width=((w.end-w.start+1)/D*100)+'%';
+    b.title='Week '+w.week+' · days '+w.start+'–'+w.end;
+    const label=h('span'); label.textContent='Week '+w.week;
+    b.appendChild(label); weekCell.appendChild(b);
+  });
 
   /* phase bands */
   computePhases().forEach((p, i) => {
@@ -1253,7 +1290,7 @@ function toast(msg){
 }
 function buildSummary(){
   const D = state.days, G = state.gal, L = [];
-  L.push('NUTRIENT BATCH LEDGER'); L.push('='.repeat(60));
+  L.push('ESTIMATE / FEED'); L.push('='.repeat(60));
   L.push(`Cycle: ${D} days @ ${trimNum(G)} gal/day  ·  total solution: ${fmt(D*G, G%1?1:0)} gal`);
   L.push(''); L.push('NUTRIENT REGISTER'); L.push('-'.repeat(60));
   state.nutrients.forEach(n => {
@@ -1387,7 +1424,7 @@ if(!bootInvalid){
   /* exact string dictionary — extend here for anything I couldn't see (tooltips etc.) */
   var DICT = {
     'Hydroponic feed planning · Worksheet no. 001': '水培施肥规划 · 工作表第 001 号',
-    'Nutrient Batch Ledger': '养分批次台账',
+    'Estimate/Feed': '估算/投喂',
     'Nutrient requirements figured from reservoir volume, per-gallon dosing rates and application windows.':
       '根据储液箱容积、每加仑投配率与施用窗口，核算养分需求。',
     'Display unit': '显示单位',
@@ -1403,7 +1440,7 @@ if(!bootInvalid){
     'start after end': '开始日大于结束日', 'clamped to cycle': '已按周期截断',
     'Application windows': '施用窗口',
     'hover to inspect a day · click to pin it': '悬停查看每日详情 · 点击可固定',
-    'Phases': '阶段', 'no nutrients registered yet': '尚未登记养分',
+    'Phases': '阶段', 'Weeks': '周', 'no nutrients registered yet': '尚未登记养分',
     'Daily total': '当日合计',
     'Batching phases': '配肥阶段', 'amounts to measure per phase': '各阶段需量取的用量',
     'Phase': '阶段', 'Days': '日期', 'Length': '时长', 'Volume': '水量', 'Total': '合计',
@@ -1412,7 +1449,7 @@ if(!bootInvalid){
     'Copy summary': '复制摘要',
     'All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · assumes constant daily volume':
       '所有数字均在本地计算 · 数据不会离开本页 · 1 磅 = 453.592 克 · 假设每日水量恒定',
-    'HYDROPONIC FEED · BATCH SCHEDULE ·': '水培施肥 · 批次计划 ·',
+    'ESTIMATE / FEED · BATCH SCHEDULE ·': '水培施肥 · 批次计划 ·',
     'DAY CYCLE': '天循环',
     'g': '克', 'kg': '千克', 'lb': '磅', 'oz': '盎司',
     'mL': '毫升', 'L': '升', 'fl oz': '液体盎司',
@@ -1451,6 +1488,7 @@ if(!bootInvalid){
     [/^Phase ([IVXL]+) · days ([\d\-–]+)$/, function (m) { return '阶段 ' + m[1] + ' · 第 ' + m[2] + ' 天'; }],
     [/^Remove (.+)$/, function (m) { return '移除 ' + m[1]; }],
     [/^Reorder (.+)$/, function (m) { return '调整顺序 ' + m[1]; }],
+    [/^Week (\d+)$/, function (m) { return '第 ' + m[1] + ' 周'; }],
     [/^D(\d+)$/, function (m) { return '第' + m[1] + '天'; }],
     [/^(\d[\d,]*) d$/, function (m) { return m[1] + ' 天'; }]
   ];
@@ -1548,7 +1586,7 @@ if(!bootInvalid){
     lang = l;
     try { state.lang = l; } catch (e) {}
     document.documentElement.lang = (l === 'zh') ? 'zh-CN' : 'en';
-    document.title = (l === 'zh') ? '养分批次台账' : 'Nutrient Batch Ledger';
+    document.title = (l === 'zh') ? '估算/投喂' : 'Estimate/Feed';
     if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === l); });
     try { if (!document.body.classList.contains('view-mode')) localStorage.setItem('nbl-lang', l); } catch (e) {}
     renderLede();

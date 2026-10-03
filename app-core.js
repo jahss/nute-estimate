@@ -175,6 +175,16 @@
     }
   }
 
+  function weekBands(days){
+    const D=Number(days);
+    if (!Number.isInteger(D) || D < 1) return [];
+    const out=[];
+    for (let start=1, week=1; start<=D; start+=7, week++){
+      out.push({week,start,end:Math.min(D,start+6)});
+    }
+    return out;
+  }
+
   function verifyHomepagePin(value){
     return String(value) === '1800911';
   }
@@ -191,5 +201,5 @@
     return {mode:'view',snapshot:decodeSnapshot(encoded)};
   }
 
-  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases, createSnapshot, encodeSnapshot, decodeSnapshot, parseViewHash, verifyHomepagePin, requiresHomepageLock};
+  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases, createSnapshot, encodeSnapshot, decodeSnapshot, parseViewHash, verifyHomepagePin, requiresHomepageLock, weekBands};
 });
