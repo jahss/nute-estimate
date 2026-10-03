@@ -1100,9 +1100,9 @@ function renderTimeline(){
   under.style.width = W + 'px'; over.style.width = W + 'px';
 
   /* weekly day ticks + gridlines */
-  const marks = [];
+  const marks = [1];
   for (let d = 7; d <= D; d += 7) marks.push(d);
-  if (!marks.length || marks[marks.length - 1] !== D) marks.push(D);
+  if (marks[marks.length - 1] !== D) marks.push(D);
   gl(under, 0, ' g-edge');
   marks.forEach(m => {
     const pct = (m / D) * 100;
@@ -1119,7 +1119,7 @@ function renderTimeline(){
     b.style.left=((w.start-1)/D*100)+'%';
     b.style.width=((w.end-w.start+1)/D*100)+'%';
     b.title='Week '+w.week+' · days '+w.start+'–'+w.end;
-    const label=h('span'); label.textContent='Week '+w.week;
+    const label=h('span'); label.textContent=String(w.week);
     b.appendChild(label); weekCell.appendChild(b);
   });
 
@@ -1186,8 +1186,11 @@ tlEl.addEventListener('click', e => {
   const D = state.days;
   const d = Math.floor(clamp((e.clientX - r.left) / r.width, 0, 0.99999) * D) + 1;
   state.pinned = (state.pinned === d) ? null : d;
-  renderTimeline(); renderDayCard();
+  renderTimeline(); renderDayCard(); hideHover();
 });
+document.addEventListener('pointerdown', e => {
+  if (!tlEl.contains(e.target)) hideHover();
+}, true);
 
 /* ---------------- day card ---------------- */
 const SVG_L = '<svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M7.5 1 2 6l5.5 5" stroke="currentColor" stroke-width="1.6"/></svg>';
