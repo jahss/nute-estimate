@@ -324,7 +324,12 @@ td.empty{font-family:var(--serif);font-style:italic;color:var(--ink-3);padding:2
 /* ---------- register ---------- */
 .sw{display:inline-block;width:13px;height:13px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
 .sw-sm{width:9px;height:9px;margin-right:7px;vertical-align:-1px}
-.name-flex{display:inline-flex;align-items:center;gap:10px}
+.name-flex{display:inline-flex;align-items:center;gap:8px}
+.drag-handle{display:inline-flex;align-items:center;justify-content:center;width:22px;height:28px;flex:0 0 22px;background:transparent;border:none;color:var(--ink-3);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.drag-handle:hover,.drag-handle:focus{color:var(--rust);outline:none}
+.drag-handle svg{pointer-events:none}
+#regBody tr.dragging{opacity:.55;background:var(--paper-2)}
+#regBody tr.dragging .drag-handle{cursor:grabbing}
 .c-name{min-width:150px}
 .in-name{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);background:transparent;border:none;border-bottom:1px dashed var(--line);width:9ch;padding:2px 0}
 .in-name:hover,.in-name:focus{border-bottom-color:var(--rust);border-bottom-style:solid;outline:none}
@@ -784,7 +789,9 @@ function rebuildRegister(){
   state.nutrients.forEach(n => {
     const tr = h('tr'); tr.dataset.id = n.id;
     tr.innerHTML = `
-      <td class="c-name"><span class="name-flex"><span class="sw" style="background:${n.color}"></span>
+      <td class="c-name"><span class="name-flex"><button type="button" class="drag-handle" aria-label="Reorder ${esc(n.name)}" title="Drag or use arrow keys to reorder">
+          <svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><circle cx="3" cy="3" r="1" fill="currentColor"/><circle cx="7" cy="3" r="1" fill="currentColor"/><circle cx="3" cy="8" r="1" fill="currentColor"/><circle cx="7" cy="8" r="1" fill="currentColor"/><circle cx="3" cy="13" r="1" fill="currentColor"/><circle cx="7" cy="13" r="1" fill="currentColor"/></svg>
+        </button><span class="sw" style="background:${n.color}"></span>
         <input class="in-name" value="${esc(n.name)}" maxlength="18" aria-label="Nutrient name"></span></td>
       <td class="c-rate r"><span class="rate-edit"><input class="in-num in-rate" type="number" min="0" step="0.1" value="${n.rate}" aria-label="Rate per gallon"><select class="in-kind" aria-label="Rate unit"><option value="dry"${kindOf(n)==='dry'?' selected':''}>g/gal</option><option value="liquid"${kindOf(n)==='liquid'?' selected':''}>mL/gal</option></select></span></td>
       <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="${n.start}" aria-label="Start day">
@@ -843,6 +850,61 @@ function updateRowOutputs(){
   state.nutrients.push({ id: uid(), name: nextName(), rate: 1, kind: 'dry', start: 1, end: state.days, color });
   rebuildRegister(); animateNext = true; scheduleRefresh();
   const tr = regBody.lastElementChild; if (tr) $('.in-name', tr).focus();
+});
+
+/* drag / keyboard reorder */
+let nutrientDrag = null;
+function syncNutrientOrder(){
+  const ids = [...regBody.querySelectorAll('tr[data-id]')].map(tr => Number(tr.dataset.id));
+  const byId = new Map(state.nutrients.map(n => [n.id, n]));
+  if (ids.length === state.nutrients.length && ids.every(id => byId.has(id)))
+    state.nutrients = ids.map(id => byId.get(id));
+}
+function finishNutrientDrag(){
+  if (!nutrientDrag) return;
+  nutrientDrag.row.classList.remove('dragging');
+  syncNutrientOrder();
+  nutrientDrag = null;
+  animateNext = false;
+  refresh();
+}
+regBody.addEventListener('pointerdown', e => {
+  const handle = e.target.closest('.drag-handle');
+  if (!handle || e.button > 0) return;
+  const row = handle.closest('tr[data-id]');
+  if (!row) return;
+  e.preventDefault();
+  nutrientDrag = {row, handle, pointerId:e.pointerId};
+  row.classList.add('dragging');
+  if (handle.setPointerCapture) handle.setPointerCapture(e.pointerId);
+});
+regBody.addEventListener('pointermove', e => {
+  if (!nutrientDrag || e.pointerId !== nutrientDrag.pointerId) return;
+  e.preventDefault();
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const target = el && el.closest('#regBody tr[data-id]');
+  if (!target || target === nutrientDrag.row) return;
+  const r = target.getBoundingClientRect();
+  regBody.insertBefore(nutrientDrag.row, e.clientY < r.top + r.height / 2 ? target : target.nextSibling);
+});
+regBody.addEventListener('pointerup', e => {
+  if (nutrientDrag && e.pointerId === nutrientDrag.pointerId) finishNutrientDrag();
+});
+regBody.addEventListener('pointercancel', e => {
+  if (nutrientDrag && e.pointerId === nutrientDrag.pointerId) finishNutrientDrag();
+});
+regBody.addEventListener('keydown', e => {
+  const handle = e.target.closest('.drag-handle');
+  if (!handle || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  const row = handle.closest('tr[data-id]'), rows = [...regBody.querySelectorAll('tr[data-id]')];
+  const from = rows.indexOf(row), to = from + (e.key === 'ArrowUp' ? -1 : 1);
+  if (from < 0 || to < 0 || to >= rows.length) return;
+  e.preventDefault();
+  regBody.insertBefore(row, to < from ? rows[to] : rows[to].nextSibling);
+  syncNutrientOrder();
+  animateNext = false;
+  refresh();
+  handle.focus();
 });
 
 /* hover a register row → highlight its bar on the chart */
@@ -1194,7 +1256,8 @@ refresh();
     'Nutrient name': '养分名称', 'Rate in grams per gallon': '每加仑投配克数',
     'Rate per gallon': '每加仑投配量', 'Rate unit': '投配单位',
     'Start day': '开始日', 'End day': '结束日',
-    'Previous day': '前一天', 'Next day': '后一天'
+    'Previous day': '前一天', 'Next day': '后一天',
+    'Drag or use arrow keys to reorder': '拖动或使用方向键调整顺序'
   };
 
   /* unit conversion for numeric strings, e.g. "1,800 g" → "1,800 克" */
@@ -1222,6 +1285,7 @@ refresh();
     [/^Day (\d+)$/, function (m) { return '第 ' + m[1] + ' 天'; }],
     [/^Phase ([IVXL]+) · days ([\d\-–]+)$/, function (m) { return '阶段 ' + m[1] + ' · 第 ' + m[2] + ' 天'; }],
     [/^Remove (.+)$/, function (m) { return '移除 ' + m[1]; }],
+    [/^Reorder (.+)$/, function (m) { return '调整顺序 ' + m[1]; }],
     [/^D(\d+)$/, function (m) { return '第' + m[1] + '天'; }],
     [/^(\d[\d,]*) d$/, function (m) { return m[1] + ' 天'; }]
   ];
