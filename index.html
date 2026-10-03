@@ -553,7 +553,7 @@ body.view-mode .window-warning{display:none}
   .lede-sec{margin-top:20px}
   .lede{font-size:18px;max-width:none}
   .timeline{--tl-label:112px;break-inside:avoid;page-break-inside:avoid;font-size:12px}
-  .tl-phases{display:none!important}
+  .phase-corner,.tl-phases{display:none!important}
   .tl-weeks{height:28px}
   .week-band span{font-size:10px;font-weight:600}
   .tl-ruler{height:32px}
@@ -1052,11 +1052,11 @@ function renderTimeline(){
   tl.innerHTML = '';
   const grid = h('div','tl-grid');
 
-  const c1 = h('div','tl-corner ph'); c1.textContent = 'Phases';
+  const c1 = h('div','tl-corner ph phase-corner'); c1.textContent = 'Phases';
   const phCell = h('div','tl-phases');
   grid.append(c1, phCell);
 
-  const cw = h('div','tl-corner ph'); cw.textContent = 'Weeks';
+  const cw = h('div','tl-corner ph week-corner'); cw.textContent = 'Weeks';
   const weekCell = h('div','tl-weeks');
   grid.append(cw, weekCell);
 
