@@ -97,5 +97,91 @@
     return phases;
   }
 
-  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases};
+
+
+  function snapshotError(code, message){
+    const e = new Error(message || code);
+    e.code = code;
+    return e;
+  }
+
+  function validateSnapshotShape(snapshot){
+    if (!snapshot || typeof snapshot !== 'object') throw snapshotError('INVALID_SNAPSHOT','Snapshot must be an object');
+    if (snapshot.v !== 1) throw snapshotError(snapshot.v == null ? 'INVALID_SNAPSHOT' : 'UNSUPPORTED_SNAPSHOT','Unsupported snapshot version');
+    const days = Number(snapshot.days), gal = Number(snapshot.gal);
+    if (!Number.isInteger(days) || days < 1 || !finite(gal) || gal < 0) throw snapshotError('INVALID_SNAPSHOT','Invalid cycle');
+    if (!['en','zh'].includes(snapshot.lang)) throw snapshotError('INVALID_SNAPSHOT','Invalid language');
+    if (!['g','kg','lb','oz'].includes(snapshot.dryUnit)) throw snapshotError('INVALID_SNAPSHOT','Invalid dry unit');
+    if (!['ml','l','gal','floz'].includes(snapshot.liquidUnit)) throw snapshotError('INVALID_SNAPSHOT','Invalid liquid unit');
+    if (!Array.isArray(snapshot.nutrients)) throw snapshotError('INVALID_SNAPSHOT','Invalid nutrients');
+    const nutrients = snapshot.nutrients.map(n => {
+      if (!n || typeof n !== 'object' || typeof n.name !== 'string' || !['dry','liquid'].includes(n.kind) || !/^#[0-9A-Fa-f]{6}$/.test(n.color || '') || !Array.isArray(n.windows) || !n.windows.length){
+        throw snapshotError('INVALID_SNAPSHOT','Invalid nutrient');
+      }
+      const windows = sortWindowsByStart(n.windows).map(w => ({rate:Number(w.rate),start:Number(w.start),end:Number(w.end)}));
+      const evals = evaluateWindows(windows, days);
+      if (evals.some(x => !x.ok)) throw snapshotError('INVALID_SNAPSHOT','Invalid nutrient windows');
+      return {name:n.name,kind:n.kind,color:n.color,windows};
+    });
+    return {v:1,days,gal,lang:snapshot.lang,dryUnit:snapshot.dryUnit,liquidUnit:snapshot.liquidUnit,nutrients};
+  }
+
+  function createSnapshot(source){
+    return validateSnapshotShape({
+      v:1,
+      days:source && source.days,
+      gal:source && source.gal,
+      lang:source && source.lang,
+      dryUnit:source && source.dryUnit,
+      liquidUnit:source && source.liquidUnit,
+      nutrients:(source && Array.isArray(source.nutrients) ? source.nutrients : []).map(n => ({
+        name:n.name, kind:n.kind, color:n.color,
+        windows:Array.isArray(n.windows) ? n.windows.map(w => ({rate:w.rate,start:w.start,end:w.end})) : []
+      }))
+    });
+  }
+
+  function utf8ToBase64Url(text){
+    if (typeof Buffer !== 'undefined') return Buffer.from(text,'utf8').toString('base64url');
+    const bytes = new TextEncoder().encode(text);
+    let bin=''; bytes.forEach(b => bin += String.fromCharCode(b));
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
+  function base64UrlToUtf8(encoded){
+    try{
+      if (typeof Buffer !== 'undefined') return Buffer.from(encoded,'base64url').toString('utf8');
+      let s=String(encoded).replace(/-/g,'+').replace(/_/g,'/');
+      while (s.length % 4) s += '=';
+      const bin=atob(s), bytes=Uint8Array.from(bin,c => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }catch(e){
+      throw snapshotError('INVALID_SNAPSHOT','Invalid encoding');
+    }
+  }
+
+  function encodeSnapshot(snapshot){
+    return utf8ToBase64Url(JSON.stringify(validateSnapshotShape(snapshot)));
+  }
+
+  function decodeSnapshot(encoded){
+    try{
+      const raw = base64UrlToUtf8(String(encoded || ''));
+      const parsed = JSON.parse(raw);
+      return validateSnapshotShape(parsed);
+    }catch(e){
+      if (e && (e.code === 'INVALID_SNAPSHOT' || e.code === 'UNSUPPORTED_SNAPSHOT')) throw e;
+      throw snapshotError('INVALID_SNAPSHOT','Malformed snapshot');
+    }
+  }
+
+  function parseViewHash(hash){
+    const raw=String(hash || '');
+    if (!raw.startsWith('#view=')) return {mode:'edit'};
+    const encoded=raw.slice(6);
+    if (!encoded) throw snapshotError('INVALID_SNAPSHOT','Missing snapshot');
+    return {mode:'view',snapshot:decodeSnapshot(encoded)};
+  }
+
+  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases, createSnapshot, encodeSnapshot, decodeSnapshot, parseViewHash};
 });

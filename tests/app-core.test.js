@@ -64,3 +64,46 @@ test('computePhases splits on adjacent rate changes', () => {
   assert.deepEqual(phases.map(p => [p.s,p.e]), [[1,14],[15,28]]);
   assert.deepEqual(phases.map(p => p.active[0].window.rate), [6,4]);
 });
+
+
+test('snapshot round trip preserves mixed nutrients, presentation, and mixing order', () => {
+  const source = {
+    days:63, gal:300, lang:'zh', dryUnit:'lb', liquidUnit:'l',
+    nutrients:[
+      {name:'液体 B',kind:'liquid',color:'#B4552D',windows:[W(2,20,30),W(1,1,10)]},
+      {name:'A',kind:'dry',color:'#2F6B3F',windows:[W(6,1,63)]}
+    ]
+  };
+  const snap = Core.createSnapshot(source);
+  const decoded = Core.decodeSnapshot(Core.encodeSnapshot(snap));
+  assert.equal(decoded.v, 1);
+  assert.equal(decoded.lang, 'zh');
+  assert.equal(decoded.dryUnit, 'lb');
+  assert.equal(decoded.liquidUnit, 'l');
+  assert.deepEqual(decoded.nutrients.map(n => n.name), ['液体 B','A']);
+  assert.deepEqual(decoded.nutrients[0].windows.map(w => w.start), [1,20]);
+});
+
+test('snapshot preserves Chinese nutrient names exactly', () => {
+  const snap = Core.createSnapshot({days:14,gal:100,lang:'zh',dryUnit:'g',liquidUnit:'ml',nutrients:[{name:'修复 液体',kind:'liquid',color:'#6D3B52',windows:[W(0.5,1,14)]}]});
+  assert.equal(Core.decodeSnapshot(Core.encodeSnapshot(snap)).nutrients[0].name, '修复 液体');
+});
+
+test('snapshot rejects overlapping windows', () => {
+  assert.throws(() => Core.createSnapshot({days:20,gal:100,lang:'en',dryUnit:'g',liquidUnit:'ml',nutrients:[{name:'A',kind:'dry',color:'#2F6B3F',windows:[W(1,1,10),W(2,10,20)]}]}), e => e && e.code === 'INVALID_SNAPSHOT');
+});
+
+test('decodeSnapshot rejects malformed payload and unsupported version', () => {
+  assert.throws(() => Core.decodeSnapshot('not-base64'), e => e && e.code === 'INVALID_SNAPSHOT');
+  const bad = Buffer.from(JSON.stringify({v:99}), 'utf8').toString('base64url');
+  assert.throws(() => Core.decodeSnapshot(bad), e => e && e.code === 'UNSUPPORTED_SNAPSHOT');
+});
+
+test('parseViewHash distinguishes edit and view modes', () => {
+  assert.deepEqual(Core.parseViewHash(''), {mode:'edit'});
+  assert.deepEqual(Core.parseViewHash('#other=1'), {mode:'edit'});
+  const snap = Core.createSnapshot({days:7,gal:10,lang:'en',dryUnit:'g',liquidUnit:'ml',nutrients:[{name:'A',kind:'dry',color:'#2F6B3F',windows:[W(1,1,7)]}]});
+  const parsed = Core.parseViewHash('#view=' + Core.encodeSnapshot(snap));
+  assert.equal(parsed.mode, 'view');
+  assert.equal(parsed.snapshot.days, 7);
+});
