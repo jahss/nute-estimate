@@ -439,6 +439,27 @@ tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font
 /* ---------- toast ---------- */
 .toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,14px);background:var(--ink);color:var(--paper);font-size:12px;letter-spacing:.08em;padding:11px 20px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:1000}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.view-actions{display:none;align-items:center;gap:8px;flex-wrap:wrap}
+body.view-mode .view-actions{display:flex}
+body.view-mode .lang-row,
+body.view-mode .unit-groups,
+body.view-mode #addBtn,
+body.view-mode #shareBtn,
+body.view-mode #copyBtn,
+body.view-mode .drag-handle,
+body.view-mode .del,
+body.view-mode .add-window,
+body.view-mode .remove-window{display:none!important}
+body.view-mode .lede-in,
+body.view-mode .in-name,
+body.view-mode .in-num,
+body.view-mode .in-kind{border-bottom-color:transparent;pointer-events:none}
+body.view-mode .in-kind{appearance:none}
+body.view-mode .window-warning{display:none}
+.invalid-snapshot{max-width:720px;margin:18vh auto;padding:36px;border:2px solid var(--ink);background:var(--card)}
+.invalid-snapshot h1{font-size:34px;margin-bottom:14px}
+.invalid-snapshot p{font-family:var(--serif);font-size:18px;margin-bottom:24px;color:var(--ink-2)}
+
 
 @media (max-width:760px){
   html,body{max-width:100%;overflow-x:hidden;touch-action:manipulation}
@@ -657,6 +678,11 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" stroke="currentColor" stroke-width="1.3"></rect><path d="M8.5 3.5v-2h-7v7h2" stroke="currentColor" stroke-width="1.3"></path></svg>
       Copy summary
     </button>
+    <button class="btn btn-ghost" id="shareBtn">Share View</button>
+    <div class="view-actions">
+      <button class="btn btn-ghost" id="printBtn">Print / Save PDF</button>
+      <button class="btn btn-ghost" id="copyLinkBtn">Copy Link</button>
+    </div>
   </footer>
   <div class="rule-tt2"></div>
   <div class="fineprint">All figures computed locally · nothing leaves this page · 1 lb = 453.592 g · 1 US gal = 3,785.412 mL · assumes constant daily volume</div>
@@ -677,7 +703,7 @@ let _uid = 0; const uid = () => ++_uid;
 
 /* ---------------- state (your schedule as defaults) ---------------- */
 const state = {
-  days: 63, gal: 300, dryUnit: 'g', liquidUnit: 'ml', pinned: 1,
+  days: 63, gal: 300, dryUnit: 'g', liquidUnit: 'ml', lang: 'en', pinned: 1,
   nutrients: [
     {id:uid(), name:'A', kind:'dry', color:PALETTE[0], windows:[{rate:6,start:1,end:63}]},
     {id:uid(), name:'B', kind:'dry', color:PALETTE[1], windows:[{rate:3,start:1,end:63}]},
@@ -1195,14 +1221,61 @@ function buildSummary(){
   }
 });
 
+async function copyText(text, success){
+  try { await navigator.clipboard.writeText(text); toast(success); return true; }
+  catch(e){
+    const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast(success); ta.remove(); return true; }
+    catch(err){ ta.remove(); toast('Copy failed — clipboard unavailable'); return false; }
+  }
+}
+$('#shareBtn').addEventListener('click', async () => {
+  try{
+    const snapshot=NuteCore.createSnapshot(state);
+    const url=location.href.split('#')[0]+'#view='+NuteCore.encodeSnapshot(snapshot);
+    await copyText(url,'View link copied to clipboard');
+  }catch(e){
+    toast('Fix invalid windows before sharing');
+  }
+});
+$('#printBtn').addEventListener('click', () => window.print());
+$('#copyLinkBtn').addEventListener('click', () => copyText(location.href,'View link copied to clipboard'));
+
+function applySnapshotToState(snapshot){
+  state.days=snapshot.days; state.gal=snapshot.gal; state.lang=snapshot.lang;
+  state.dryUnit=snapshot.dryUnit; state.liquidUnit=snapshot.liquidUnit; state.pinned=1;
+  state.nutrients=snapshot.nutrients.map(n => ({id:uid(),name:n.name,kind:n.kind,color:n.color,windows:n.windows.map(w => ({rate:w.rate,start:w.start,end:w.end}))}));
+  daysIn.value=state.days; galIn.value=state.gal;
+  [...$('#dryUnitSeg').children].forEach(b => b.classList.toggle('on',b.dataset.u===state.dryUnit));
+  [...$('#liquidUnitSeg').children].forEach(b => b.classList.toggle('on',b.dataset.u===state.liquidUnit));
+}
+function lockViewMode(){
+  document.body.classList.add('view-mode');
+  document.querySelectorAll('input').forEach(el => { el.readOnly=true; el.tabIndex=-1; });
+  document.querySelectorAll('select').forEach(el => { el.disabled=true; el.tabIndex=-1; });
+}
+function renderInvalidSnapshot(){
+  document.body.innerHTML='<main class="invalid-snapshot"><h1>Snapshot unavailable</h1><p>This snapshot link is invalid or unsupported.</p><a class="btn" href="./">Open editor</a></main>';
+}
+
 /* ---------------- boot ---------------- */
 let rz;
 window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(renderTimeline); });
 window.addEventListener('load', renderTimeline); /* re-measure once fonts are in */
 ['gesturestart','gesturechange','gestureend'].forEach(type => document.addEventListener(type, e => e.preventDefault(), {passive:false}));
-fit(daysIn); fit(galIn);
-rebuildRegister();
-refresh();
+let bootInvalid=false, bootMode={mode:'edit'};
+try{
+  bootMode=NuteCore.parseViewHash(location.hash);
+  if(bootMode.mode==='view') applySnapshotToState(bootMode.snapshot);
+}catch(e){
+  bootInvalid=true; renderInvalidSnapshot();
+}
+if(!bootInvalid){
+  fit(daysIn); fit(galIn);
+  rebuildRegister();
+  refresh();
+  if(bootMode.mode==='view') lockViewMode();
+}
 </script>
 
 <script>
@@ -1221,6 +1294,7 @@ refresh();
     'Display unit': '显示单位',
     'Nutrient register': '养分清单',
     'Add nutrient': '添加养分', 'Add window': '添加窗口', 'Remove window': '移除窗口',
+    'Share View': '分享只读视图', 'Print / Save PDF': '打印 / 保存 PDF', 'Copy Link': '复制链接',
     'overlapping window': '窗口重叠', 'outside cycle': '超出周期', 'incomplete window': '窗口信息不全',
     'Nutrient': '养分', 'Rate': '投配率', 'Window (days)': '施用窗口（天）',
     'Days used': '使用天数', 'Total required': '需求总量',
@@ -1373,6 +1447,7 @@ refresh();
   var seg = document.getElementById('langSeg');
   function setLang(l) {
     lang = l;
+    try { state.lang = l; } catch (e) {}
     document.documentElement.lang = (l === 'zh') ? 'zh-CN' : 'en';
     document.title = (l === 'zh') ? '养分批次台账' : 'Nutrient Batch Ledger';
     if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === l); });
@@ -1396,7 +1471,8 @@ refresh();
   /* boot — remember last choice */
   var saved = null;
   try { saved = localStorage.getItem('nbl-lang'); } catch (e) {}
-  if (saved === 'zh') setLang('zh');
+  if (document.body.classList.contains('view-mode')) setLang((state.lang === 'zh') ? 'zh' : 'en');
+  else if (saved === 'zh') setLang('zh');
 })();
 </script>
 </body>
