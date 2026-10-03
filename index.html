@@ -351,6 +351,16 @@ tr.invalid .tot{color:var(--ink-3)}
 .del-col{width:34px}
 .del{background:transparent;border:none;color:var(--ink-3);cursor:pointer;padding:6px;line-height:0;transition:color .15s}
 .del:hover{color:var(--rust)}
+.win-stack{display:flex;flex-direction:column;gap:6px}
+.win-line{min-height:29px;display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.c-win .win-line{justify-content:flex-start}
+.win-line.invalid .in-num{border-bottom-color:var(--rust)}
+.win-remove{background:transparent;border:none;color:var(--ink-3);cursor:pointer;font:600 14px/1 var(--mono);padding:5px}
+.win-remove:hover{color:var(--rust)}
+.add-window{margin-top:6px;background:transparent;border:none;border-bottom:1px dashed var(--line-2);color:var(--ink-2);font:500 10px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:2px 0}
+.add-window:hover{color:var(--rust);border-color:var(--rust)}
+.window-warning{font-size:10px;color:var(--rust);white-space:normal;max-width:18ch}
+
 
 /* ---------- timeline ---------- */
 .timeline{--tl-label:132px;position:relative;user-select:none;-webkit-user-select:none;cursor:crosshair;touch-action:manipulation}
@@ -656,6 +666,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
 <div class="tl-tip" id="tlTip"></div>
 <div class="toast" id="toast"></div>
 
+<script src="app-core.js"></script>
 <script>
 'use strict';
 const $ = (s, c=document) => c.querySelector(s);
@@ -668,11 +679,11 @@ let _uid = 0; const uid = () => ++_uid;
 const state = {
   days: 63, gal: 300, dryUnit: 'g', liquidUnit: 'ml', pinned: 1,
   nutrients: [
-    {id:uid(), name:'A', rate:6, kind:'dry', start:1,  end:63, color:PALETTE[0]},
-    {id:uid(), name:'B', rate:3, kind:'dry', start:1,  end:63, color:PALETTE[1]},
-    {id:uid(), name:'V 活力', rate:1, kind:'dry', start:1,  end:42, color:PALETTE[2]},
-    {id:uid(), name:'F 强化', rate:1, kind:'dry', start:1,  end:42, color:PALETTE[3]},
-    {id:uid(), name:'R 修复', rate:0.2, kind:'dry', start:43, end:63, color:PALETTE[4]},
+    {id:uid(), name:'A', kind:'dry', color:PALETTE[0], windows:[{rate:6,start:1,end:63}]},
+    {id:uid(), name:'B', kind:'dry', color:PALETTE[1], windows:[{rate:3,start:1,end:63}]},
+    {id:uid(), name:'V 活力', kind:'dry', color:PALETTE[2], windows:[{rate:1,start:1,end:42}]},
+    {id:uid(), name:'F 强化', kind:'dry', color:PALETTE[3], windows:[{rate:1,start:1,end:42}]},
+    {id:uid(), name:'R 修复', kind:'dry', color:PALETTE[4], windows:[{rate:0.2,start:43,end:63}]},
   ]
 };
 let animateNext = true;
@@ -707,14 +718,13 @@ function fmtLiquid(ml){
 }
 const fmtAmount = (n, amount) => kindOf(n) === 'liquid' ? fmtLiquid(amount) : fmtDry(amount);
 function totalsByKind(items, amountOf){
-  let dry = 0, liquid = 0, hasDry = false, hasLiquid = false;
-  items.forEach(n => {
-    const amount = amountOf(n);
-    if (!isFinite(amount)) return;
-    if (kindOf(n) === 'liquid'){ liquid += amount; hasLiquid = true; }
-    else { dry += amount; hasDry = true; }
+  let dry=0, liquid=0, hasDry=false, hasLiquid=false;
+  items.forEach(item => {
+    const n = item.n || item, amount = amountOf(item);
+    if(!isFinite(amount))return;
+    if(kindOf(n)==='liquid'){liquid+=amount;hasLiquid=true;} else {dry+=amount;hasDry=true;}
   });
-  return {dry, liquid, hasDry, hasLiquid};
+  return {dry,liquid,hasDry,hasLiquid};
 }
 function roman(n){
   const m = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
@@ -722,36 +732,16 @@ function roman(n){
 }
 
 /* ---------------- core math ---------------- */
-/* effective window: clamped to the cycle, inclusive days */
-function windowOf(n){
-  const D = state.days;
-  const rs = Math.floor(num(n.start)), re = Math.floor(num(n.end));
-  const s = isFinite(rs) ? Math.max(1, rs) : NaN;
-  const e = isFinite(re) ? Math.min(D, re) : NaN;
-  const rate = num(n.rate);
-  const ok = isFinite(s) && isFinite(e) && s <= e && isFinite(rate) && rate >= 0;
-  return { ok, s, e, days: ok ? e - s + 1 : 0 };
-}
-function rowTotal(n){
-  const w = windowOf(n);
-  return w.ok ? num(n.rate) * state.gal * w.days : NaN;
-}
-const validNutrients = () => state.nutrients.filter(n => windowOf(n).ok);
-const totalForKind = kind => state.nutrients.reduce((a,n) => kindOf(n) === kind && isFinite(rowTotal(n)) ? a + rowTotal(n) : a, 0);
-const dayMix = d => validNutrients().filter(n => { const w = windowOf(n); return d >= w.s && d <= w.e; });
-
-/* phases = maximal day ranges during which the active nutrient set doesn't change */
+const windowEvaluations = n => NuteCore.evaluateWindows(n.windows, state.days);
+const validWindows = n => windowEvaluations(n).filter(w => w.ok);
+const rowTotal = n => NuteCore.nutrientStats(n, state.days, state.gal).total;
+const activeDays = n => NuteCore.nutrientStats(n, state.days, state.gal).activeDays;
+const activeWindow = (n,d) => NuteCore.activeWindowAt(n, d, state.days);
+const validNutrients = () => state.nutrients.filter(n => validWindows(n).length);
+const totalForKind = kind => state.nutrients.reduce((a,n) => kindOf(n) === kind ? a + rowTotal(n) : a, 0);
+const dayMix = d => state.nutrients.map(n => ({n,w:activeWindow(n,d)})).filter(x => x.w);
 function computePhases(){
-  const D = state.days, bs = new Set([1, D+1]);
-  validNutrients().forEach(n => { const w = windowOf(n); bs.add(w.s); bs.add(w.e + 1); });
-  const arr = [...bs].filter(b => b >= 1 && b <= D+1).sort((a,b) => a-b);
-  const phases = [];
-  for (let i = 0; i < arr.length - 1; i++){
-    const s = arr[i], e = arr[i+1] - 1;
-    if (s > e) continue;
-    phases.push({ s, e, act: validNutrients().filter(n => { const w = windowOf(n); return w.s <= s && w.e >= e; }) });
-  }
-  return phases;
+  return NuteCore.computePhases(state.nutrients, state.days);
 }
 
 /* ---------------- refresh plumbing ---------------- */
@@ -780,6 +770,15 @@ function nextName(){
   for (let i = 0; i < 26; i++){ const L = String.fromCharCode(65+i); if (!used.has(L)) return L; }
   return 'N' + (state.nutrients.length + 1);
 }
+const winReason = r => ({
+  'incomplete':'incomplete window',
+  'negative-rate':'rate must be 0 or greater',
+  'non-integer-day':'whole days only',
+  'outside-cycle':'outside cycle',
+  'start-after-end':'start after end',
+  'overlap':'overlapping window'
+}[r] || '');
+
 function rebuildRegister(){
   regBody.innerHTML = '';
   if (!state.nutrients.length){
@@ -787,26 +786,54 @@ function rebuildRegister(){
     return;
   }
   state.nutrients.forEach(n => {
+    if (!Array.isArray(n.windows) || !n.windows.length) n.windows = [{rate:1,start:NaN,end:NaN}];
+    const ev = windowEvaluations(n);
+    const rateLines = n.windows.map((w,i) => {
+      const bad = ev[i] && !ev[i].ok ? ' invalid' : '';
+      return '<div class="win-line'+bad+'" data-win-index="'+i+'"><input class="in-num in-rate" type="number" min="0" step="0.1" value="'+(isFinite(num(w.rate))?esc(w.rate):'')+'" aria-label="Rate per gallon">'
+        + (i===0 ? '<select class="in-kind" aria-label="Rate unit"><option value="dry"'+(kindOf(n)==='dry'?' selected':'')+'>g/gal</option><option value="liquid"'+(kindOf(n)==='liquid'?' selected':'')+'>mL/gal</option></select>' : '<span class="unit-note">'+rateUnit(n)+'</span>')
+        + (i>0 ? '<button type="button" class="win-remove remove-window" data-win-index="'+i+'" aria-label="Remove window">×</button>' : '')
+        + '</div>';
+    }).join('');
+    const windowLines = n.windows.map((w,i) => {
+      const bad = ev[i] && !ev[i].ok ? ' invalid' : '';
+      return '<div class="win-line'+bad+'" data-win-index="'+i+'"><input class="in-num in-start" type="number" min="1" step="1" value="'+(isFinite(num(w.start))?esc(w.start):'')+'" aria-label="Start day"><span class="dash">–</span><input class="in-num in-end" type="number" min="1" step="1" value="'+(isFinite(num(w.end))?esc(w.end):'')+'" aria-label="End day">'+(ev[i]&&!ev[i].ok?'<span class="window-warning">'+winReason(ev[i].reason)+'</span>':'')+'</div>';
+    }).join('');
     const tr = h('tr'); tr.dataset.id = n.id;
     tr.innerHTML = `
       <td class="c-name"><span class="name-flex"><button type="button" class="drag-handle" aria-label="Reorder ${esc(n.name)}" title="Drag or use arrow keys to reorder">
           <svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><circle cx="3" cy="3" r="1" fill="currentColor"/><circle cx="7" cy="3" r="1" fill="currentColor"/><circle cx="3" cy="8" r="1" fill="currentColor"/><circle cx="7" cy="8" r="1" fill="currentColor"/><circle cx="3" cy="13" r="1" fill="currentColor"/><circle cx="7" cy="13" r="1" fill="currentColor"/></svg>
         </button><span class="sw" style="background:${n.color}"></span>
         <input class="in-name" value="${esc(n.name)}" maxlength="18" aria-label="Nutrient name"></span></td>
-      <td class="c-rate r"><span class="rate-edit"><input class="in-num in-rate" type="number" min="0" step="0.1" value="${n.rate}" aria-label="Rate per gallon"><select class="in-kind" aria-label="Rate unit"><option value="dry"${kindOf(n)==='dry'?' selected':''}>g/gal</option><option value="liquid"${kindOf(n)==='liquid'?' selected':''}>mL/gal</option></select></span></td>
-      <td class="c-win"><input class="in-num in-start" type="number" min="1" step="1" value="${n.start}" aria-label="Start day">
-        <span class="dash">–</span>
-        <input class="in-num in-end" type="number" min="1" step="1" value="${n.end}" aria-label="End day"></td>
+      <td class="c-rate r"><div class="win-stack">${rateLines}</div></td>
+      <td class="c-win"><div class="win-stack">${windowLines}</div><button type="button" class="add-window">+ Add window</button></td>
       <td class="r"><span class="days-val"></span><span class="days-note"></span></td>
       <td class="r"><div class="tot"></div><div class="tot-sub"></div></td>
       <td><button class="del" aria-label="Remove ${esc(n.name)}">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 1.5l8 8m0-8l-8 8" stroke="currentColor" stroke-width="1.5"/></svg></button></td>`;
     regBody.appendChild(tr);
     $('.in-name', tr).addEventListener('input', e => { n.name = e.target.value; scheduleRefresh(); });
-    $('.in-rate', tr).addEventListener('input', e => { n.rate = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
-    $('.in-kind', tr).addEventListener('change', e => { n.kind = e.target.value; scheduleRefresh(); });
-    $('.in-start',tr).addEventListener('input', e => { n.start = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
-    $('.in-end', tr).addEventListener('input', e => { n.end = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+    tr.querySelectorAll('.in-rate').forEach((el,i) => el.addEventListener('input', e => { n.windows[i].rate = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); }));
+    $('.in-kind', tr).addEventListener('change', e => { n.kind = e.target.value; rebuildRegister(); scheduleRefresh(); });
+    tr.querySelectorAll('.in-start').forEach((el,i) => {
+      el.addEventListener('input', e => { n.windows[i].start = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); });
+      el.addEventListener('change', () => { n.windows = NuteCore.sortWindowsByStart(n.windows); rebuildRegister(); refresh(); });
+    });
+    tr.querySelectorAll('.in-end').forEach((el,i) => el.addEventListener('input', e => { n.windows[i].end = e.target.value === '' ? NaN : num(e.target.value); scheduleRefresh(); }));
+    tr.querySelectorAll('.remove-window').forEach(el => el.addEventListener('click', () => {
+      const i = Number(el.dataset.winIndex);
+      n.windows.splice(i,1);
+      if (!n.windows.length) n.windows.push({rate:1,start:NaN,end:NaN});
+      rebuildRegister(); refresh();
+    }));
+    $('.add-window', tr).addEventListener('click', () => {
+      const prev = n.windows[n.windows.length-1];
+      n.windows.push({rate:isFinite(num(prev && prev.rate))?num(prev.rate):1,start:NaN,end:NaN});
+      rebuildRegister(); refresh();
+      const row = regBody.querySelector('tr[data-id="'+n.id+'"]');
+      const starts = row && row.querySelectorAll('.in-start');
+      if (starts && starts.length) starts[starts.length-1].focus();
+    });
     $('.del', tr).addEventListener('click', () => {
       state.nutrients = state.nutrients.filter(x => x.id !== n.id);
       rebuildRegister(); scheduleRefresh();
@@ -814,97 +841,67 @@ function rebuildRegister(){
   });
 }
 function updateRowOutputs(){
-  [...regBody.children].forEach(tr => {
-    const id = Number(tr.dataset.id);
-    if (!id) return;
-    const n = state.nutrients.find(x => x.id === id);
+  [...regBody.querySelectorAll('tr[data-id]')].forEach(tr => {
+    const id = Number(tr.dataset.id), n = state.nutrients.find(x => x.id === id);
     if (!n) return;
-    const w = windowOf(n), t = rowTotal(n);
-    tr.classList.toggle('invalid', !w.ok);
-    const dv = $('.days-val',tr), dn = $('.days-note',tr), tot = $('.tot',tr), sub = $('.tot-sub',tr);
-    if (!w.ok){
-      dv.textContent = '—';
-      const rs = num(n.start), re = num(n.end), rr = num(n.rate);
-      dn.textContent = (!isFinite(rs) || !isFinite(re) || !isFinite(rr)) ? 'incomplete'
-                     : (rs > state.days || re < 1) ? 'outside cycle'
-                     : 'start after end';
-      tot.textContent = '—'; sub.textContent = '';
+    const ev = windowEvaluations(n), stats = NuteCore.nutrientStats(n,state.days,state.gal), t = stats.total;
+    tr.querySelectorAll('.win-line[data-win-index]').forEach(line => {
+      const i = Number(line.dataset.winIndex);
+      line.classList.toggle('invalid', !!ev[i] && !ev[i].ok);
+    });
+    const dv=$('.days-val',tr), dn=$('.days-note',tr), tot=$('.tot',tr), sub=$('.tot-sub',tr);
+    dv.textContent = stats.activeDays + ' d';
+    const bad = ev.filter(x => !x.ok);
+    dn.textContent = bad.length ? bad.length + ' invalid window' + (bad.length>1?'s':'') : '';
+    tot.textContent = fmtAmount(n,t);
+    if (kindOf(n) === 'liquid'){
+      sub.textContent = state.liquidUnit === 'ml' ? '≈ ' + fmt(t/ML_PER_L,2) + ' L · ' + fmt(t/ML_PER_GAL,2) + ' gal' : '= ' + fmtML(t);
     } else {
-      const rs = num(n.start), re = num(n.end);
-      dv.textContent = w.days + ' d';
-      dn.textContent = (rs < 1 || re > state.days) ? 'clamped to cycle' : '';
-      tot.textContent = fmtAmount(n, t);
-      if (kindOf(n) === 'liquid'){
-        sub.textContent = state.liquidUnit === 'ml'
-          ? '≈ ' + fmt(t/ML_PER_L, 2) + ' L · ' + fmt(t/ML_PER_GAL, 2) + ' gal'
-          : '= ' + fmtML(t);
-      } else {
-        sub.textContent = state.dryUnit === 'g' ? '≈ ' + fmt(t/LB, 1) + ' lb' : '= ' + fmtG(t);
-      }
+      sub.textContent = state.dryUnit === 'g' ? '≈ ' + fmt(t/LB,1) + ' lb' : '= ' + fmtG(t);
     }
   });
 }
- $('#addBtn').addEventListener('click', () => {
+$('#addBtn').addEventListener('click', () => {
   const usedC = new Set(state.nutrients.map(n => n.color));
   const color = PALETTE.find(c => !usedC.has(c)) || PALETTE[state.nutrients.length % PALETTE.length];
-  state.nutrients.push({ id: uid(), name: nextName(), rate: 1, kind: 'dry', start: 1, end: state.days, color });
+  state.nutrients.push({id:uid(),name:nextName(),kind:'dry',color,windows:[{rate:1,start:1,end:state.days}]});
   rebuildRegister(); animateNext = true; scheduleRefresh();
-  const tr = regBody.lastElementChild; if (tr) $('.in-name', tr).focus();
+  const tr = regBody.lastElementChild; if (tr) $('.in-name',tr).focus();
 });
 
 /* drag / keyboard reorder */
 let nutrientDrag = null;
 function syncNutrientOrder(){
   const ids = [...regBody.querySelectorAll('tr[data-id]')].map(tr => Number(tr.dataset.id));
-  const byId = new Map(state.nutrients.map(n => [n.id, n]));
-  if (ids.length === state.nutrients.length && ids.every(id => byId.has(id)))
-    state.nutrients = ids.map(id => byId.get(id));
+  const byId = new Map(state.nutrients.map(n => [n.id,n]));
+  if (ids.length === state.nutrients.length && ids.every(id => byId.has(id))) state.nutrients = ids.map(id => byId.get(id));
 }
 function finishNutrientDrag(){
   if (!nutrientDrag) return;
   nutrientDrag.row.classList.remove('dragging');
-  syncNutrientOrder();
-  nutrientDrag = null;
-  animateNext = false;
-  refresh();
+  syncNutrientOrder(); nutrientDrag=null; animateNext=false; refresh();
 }
 regBody.addEventListener('pointerdown', e => {
-  const handle = e.target.closest('.drag-handle');
-  if (!handle || e.button > 0) return;
-  const row = handle.closest('tr[data-id]');
-  if (!row) return;
-  e.preventDefault();
-  nutrientDrag = {row, handle, pointerId:e.pointerId};
-  row.classList.add('dragging');
-  if (handle.setPointerCapture) handle.setPointerCapture(e.pointerId);
+  const handle=e.target.closest('.drag-handle'); if(!handle||e.button>0)return;
+  const row=handle.closest('tr[data-id]'); if(!row)return;
+  e.preventDefault(); nutrientDrag={row,handle,pointerId:e.pointerId}; row.classList.add('dragging');
+  if(handle.setPointerCapture)handle.setPointerCapture(e.pointerId);
 });
 regBody.addEventListener('pointermove', e => {
-  if (!nutrientDrag || e.pointerId !== nutrientDrag.pointerId) return;
-  e.preventDefault();
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const target = el && el.closest('#regBody tr[data-id]');
-  if (!target || target === nutrientDrag.row) return;
-  const r = target.getBoundingClientRect();
-  regBody.insertBefore(nutrientDrag.row, e.clientY < r.top + r.height / 2 ? target : target.nextSibling);
+  if(!nutrientDrag||e.pointerId!==nutrientDrag.pointerId)return;
+  e.preventDefault(); const el=document.elementFromPoint(e.clientX,e.clientY);
+  const target=el&&el.closest('#regBody tr[data-id]'); if(!target||target===nutrientDrag.row)return;
+  const r=target.getBoundingClientRect();
+  regBody.insertBefore(nutrientDrag.row,e.clientY<r.top+r.height/2?target:target.nextSibling);
 });
-regBody.addEventListener('pointerup', e => {
-  if (nutrientDrag && e.pointerId === nutrientDrag.pointerId) finishNutrientDrag();
-});
-regBody.addEventListener('pointercancel', e => {
-  if (nutrientDrag && e.pointerId === nutrientDrag.pointerId) finishNutrientDrag();
-});
+regBody.addEventListener('pointerup', e => { if(nutrientDrag&&e.pointerId===nutrientDrag.pointerId)finishNutrientDrag(); });
+regBody.addEventListener('pointercancel', e => { if(nutrientDrag&&e.pointerId===nutrientDrag.pointerId)finishNutrientDrag(); });
 regBody.addEventListener('keydown', e => {
-  const handle = e.target.closest('.drag-handle');
-  if (!handle || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
-  const row = handle.closest('tr[data-id]'), rows = [...regBody.querySelectorAll('tr[data-id]')];
-  const from = rows.indexOf(row), to = from + (e.key === 'ArrowUp' ? -1 : 1);
-  if (from < 0 || to < 0 || to >= rows.length) return;
-  e.preventDefault();
-  regBody.insertBefore(row, to < from ? rows[to] : rows[to].nextSibling);
-  syncNutrientOrder();
-  animateNext = false;
-  refresh();
-  handle.focus();
+  const handle=e.target.closest('.drag-handle'); if(!handle||(e.key!=='ArrowUp'&&e.key!=='ArrowDown'))return;
+  const row=handle.closest('tr[data-id]'), rows=[...regBody.querySelectorAll('tr[data-id]')];
+  const from=rows.indexOf(row), to=from+(e.key==='ArrowUp'?-1:1); if(from<0||to<0||to>=rows.length)return;
+  e.preventDefault(); regBody.insertBefore(row,to<from?rows[to]:rows[to].nextSibling);
+  syncNutrientOrder(); animateNext=false; refresh(); handle.focus();
 });
 
 /* hover a register row → highlight its bar on the chart */
@@ -947,21 +944,18 @@ function renderTimeline(){
     const lab = h('div','tl-label');
     const sw = h('span','sw'); sw.style.background = n.color;
     const nm = h('span','tl-name'); nm.textContent = n.name || '—';
-    lab.append(sw, nm);
+    lab.append(sw,nm);
     const track = h('div','tl-track');
-    const w = windowOf(n);
-    if (w.ok){
+    validWindows(n).forEach((ew,j) => {
       const bar = h('div','tl-bar' + (animateNext ? ' anim' : ''));
-      bar.dataset.barId = n.id;
-      bar.style.background = n.color;
-      bar.style.left = ((w.s - 1) / D * 100) + '%';
-      bar.style.width = ((w.e - w.s + 1) / D * 100) + '%';
-      bar.style.setProperty('--i', i);
-      const bl = h('span','tl-bar-label'); bl.textContent = trimNum(num(n.rate)) + ' ' + rateUnit(n);
-      bar.appendChild(bl);
-      track.appendChild(bar);
-    }
-    grid.append(lab, track);
+      bar.dataset.barId = n.id; bar.style.background = n.color;
+      bar.style.left = ((ew.start - 1) / D * 100) + '%';
+      bar.style.width = ((ew.end - ew.start + 1) / D * 100) + '%';
+      bar.style.setProperty('--i', i + j/10);
+      const bl = h('span','tl-bar-label'); bl.textContent = trimNum(ew.rate) + ' ' + rateUnit(n);
+      bar.appendChild(bl); track.appendChild(bar);
+    });
+    grid.append(lab,track);
   });
   if (!state.nutrients.length){
     grid.append(h('div','tl-label empty'), (() => { const t = h('div','tl-track empty'); t.textContent = 'no nutrients registered yet'; return t; })());
@@ -1026,7 +1020,7 @@ function showTip(d, x, y){
   const mix = dayMix(d);
   let html = `<div class="tip-h">Day ${d} · ${fmtGal()} gal</div>`;
   html += mix.length
-    ? mix.map(n => `<div class="tip-r"><span class="dot" style="background:${n.color}"></span>${esc(n.name||'?')}<span class="tip-amt">${fmtAmount(n, num(n.rate) * state.gal)}</span></div>`).join('')
+    ? mix.map(({n,w}) => `<div class="tip-r"><span class="dot" style="background:${n.color}"></span>${esc(n.name||'?')}<span class="tip-amt">${fmtAmount(n, num(w.rate) * state.gal)}</span></div>`).join('')
     : '<div class="tip-e">no nutrients active</div>';
   tipEl.innerHTML = html; tipEl.style.display = 'block';
   const tw = tipEl.offsetWidth, thh = tipEl.offsetHeight;
@@ -1069,11 +1063,11 @@ function renderDayCard(){
       <button class="nav-btn" id="dayNext" aria-label="Next day"${d >= state.days ? ' disabled' : ''}>${SVG_R}</button>
     </div><div class="dc-mix">`;
   html += mix.length
-    ? mix.map(n => `<span class="dc-chip"><span class="sw" style="background:${n.color}"></span><b>${esc(n.name||'?')}</b> ${trimNum(num(n.rate))} ${rateUnit(n)} × ${fmtGal()} gal <span class="dc-amt">${fmtAmount(n, num(n.rate) * state.gal)}</span></span>`).join('')
+    ? mix.map(({n,w}) => `<span class="dc-chip"><span class="sw" style="background:${n.color}"></span><b>${esc(n.name||'?')}</b> ${trimNum(num(w.rate))} ${rateUnit(n)} × ${fmtGal()} gal <span class="dc-amt">${fmtAmount(n, num(w.rate) * state.gal)}</span></span>`).join('')
     : '<span class="dc-none">nothing dosed this day</span>';
   html += '</div>';
   if (mix.length){
-    const totals = totalsByKind(mix, n => num(n.rate) * state.gal);
+    const totals = totalsByKind(mix, x => num(x.w.rate) * state.gal);
     const parts = [];
     if (totals.hasDry) parts.push('Dry ' + fmtDry(totals.dry));
     if (totals.hasLiquid) parts.push('Liquid ' + fmtLiquid(totals.liquid));
@@ -1087,32 +1081,27 @@ function renderDayCard(){
 
 /* ---------------- phases table ---------------- */
 function renderPhases(){
-  const t = $('#phaseTable'), ph = computePhases(), nuts = state.nutrients;
-  let html = '<thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th>';
+  const t=$('#phaseTable'), ph=computePhases(), nuts=state.nutrients;
+  let html='<thead><tr><th>Phase</th><th>Days</th><th class="r">Length</th><th class="r">Volume</th>';
   nuts.forEach(n => html += `<th class="r"><span class="sw sw-sm" style="background:${n.color}"></span>${esc(n.name||'?')}</th>`);
   html += '</tr></thead><tbody>';
-  if (!nuts.length){
-    html += `<tr><td colspan="4" class="empty">No nutrients registered.</td></tr>`;
-  } else {
-    ph.forEach((p, i) => {
-      html += `<tr><td class="ph-num">${roman(i+1)}</td><td class="ph-days">${p.s}–${p.e}</td><td class="r">${p.e - p.s + 1} d</td><td class="r">${fmt((p.e - p.s + 1) * state.gal, 0)} gal</td>`;
-      nuts.forEach(n => {
-        html += p.act.includes(n)
-          ? `<td class="r">${fmtAmount(n, num(n.rate) * state.gal * (p.e - p.s + 1))}</td>`
-          : '<td class="off">·</td>';
-      });
-      html += '</tr>';
+  if(!nuts.length) html += '<tr><td colspan="4" class="empty">No nutrients registered.</td></tr>';
+  else ph.forEach((p,i) => {
+    const len=p.e-p.s+1, vol=len*state.gal;
+    html += `<tr><td class="ph-num">${roman(i+1)}</td><td class="ph-days">${p.s}–${p.e}</td><td class="r">${len} d</td><td class="r">${fmt(vol,0)} gal</td>`;
+    nuts.forEach(n => {
+      const a=p.active.find(x => x.nutrient===n);
+      html += a ? `<td class="r">${fmtAmount(n,num(a.window.rate)*vol)}</td>` : '<td class="off">·</td>';
     });
-  }
+    html += '</tr>';
+  });
   html += '</tbody>';
-  if (nuts.length && ph.length){
-    html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">' + fmt(state.days * state.gal, 0) + ' gal</td>';    nuts.forEach(n => {
-      const tt = rowTotal(n);
-      html += isFinite(tt) ? `<td class="r">${fmtAmount(n, tt)}</td>` : '<td class="off">·</td>';
-    });
+  if(nuts.length&&ph.length){
+    html += '<tfoot><tr><td colspan="3" class="r">Total</td><td class="r">'+fmt(state.days*state.gal,0)+' gal</td>';
+    nuts.forEach(n => html += `<td class="r">${fmtAmount(n,rowTotal(n))}</td>`);
     html += '</tr></tfoot>';
   }
-  t.innerHTML = html;
+  t.innerHTML=html;
 }
 
 /* ---------------- tally ---------------- */
@@ -1170,18 +1159,20 @@ function buildSummary(){
   L.push(`Cycle: ${D} days @ ${trimNum(G)} gal/day  ·  total solution: ${fmt(D*G, G%1?1:0)} gal`);
   L.push(''); L.push('NUTRIENT REGISTER'); L.push('-'.repeat(60));
   state.nutrients.forEach(n => {
-    const w = windowOf(n), t = rowTotal(n), name = (n.name || '?').padEnd(6);
-    if (!w.ok){ L.push(`${name} — invalid window (start ${n.start}, end ${n.end})`); return; }
-    if (kindOf(n) === 'liquid'){
-      L.push(`${name} ${trimNum(num(n.rate))} mL/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtML(t)}  ≈ ${fmt(t/ML_PER_L, 2)} L  ≈ ${fmt(t/ML_PER_GAL, 2)} gal`);
-    } else {
-      L.push(`${name} ${trimNum(num(n.rate))} g/gal · days ${w.s}–${w.e} (${w.days} d) · ${fmtG(t)}  ≈ ${fmt(t/LB, 1)} lb`);
-    }
+    const name=(n.name||'?').padEnd(6), ev=windowEvaluations(n), t=rowTotal(n);
+    ev.forEach((w,i) => {
+      const prefix=i===0?name:' '.repeat(6);
+      if(!w.ok){ L.push(`${prefix} — invalid window (${winReason(w.reason)})`); return; }
+      const amount=w.rate*G*w.days;
+      if(kindOf(n)==='liquid') L.push(`${prefix} ${trimNum(w.rate)} mL/gal · days ${w.start}–${w.end} (${w.days} d) · ${fmtML(amount)}`);
+      else L.push(`${prefix} ${trimNum(w.rate)} g/gal · days ${w.start}–${w.end} (${w.days} d) · ${fmtG(amount)}`);
+    });
+    L.push(`       total · ${activeDays(n)} d · ${fmtAmount(n,t)}`);
   });
   L.push(''); L.push('BATCHING PHASES'); L.push('-'.repeat(60));
   computePhases().forEach((p, i) => {
     const vol = (p.e - p.s + 1) * G;
-    const parts = p.act.map(n => `${n.name} ${fmtAmount(n, num(n.rate) * vol)}`);
+    const parts = p.active.map(a => `${a.nutrient.name} ${fmtAmount(a.nutrient,num(a.window.rate)*vol)}`);
     L.push(`Phase ${roman(i+1).padEnd(4)} days ${String(p.s).padStart(3)}–${String(p.e).padEnd(3)} (${p.e - p.s + 1} d, ${fmt(vol,0)} gal): ${parts.length ? parts.join('  ·  ') : '—'}`);
   });
   L.push(''); L.push('='.repeat(60));
@@ -1229,7 +1220,8 @@ refresh();
       '根据储液箱容积、每加仑投配率与施用窗口，核算养分需求。',
     'Display unit': '显示单位',
     'Nutrient register': '养分清单',
-    'Add nutrient': '添加养分',
+    'Add nutrient': '添加养分', 'Add window': '添加窗口', 'Remove window': '移除窗口',
+    'overlapping window': '窗口重叠', 'outside cycle': '超出周期', 'incomplete window': '窗口信息不全',
     'Nutrient': '养分', 'Rate': '投配率', 'Window (days)': '施用窗口（天）',
     'Days used': '使用天数', 'Total required': '需求总量',
     'No nutrients registered — add one to begin.': '尚未登记养分——请先添加一项。',
