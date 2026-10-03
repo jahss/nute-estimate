@@ -531,47 +531,34 @@ body.view-mode #phaseSection{display:none!important}
 
 
 @media print{
-  @page{size:landscape;margin:10mm}
-  html,body{background:#fff!important;color:#111!important;overflow:visible!important}
-  body::after{display:none!important}
-  .page{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;display:flex!important;flex-direction:column!important}
-  .page>*{animation:none!important}
-  .lang-row{order:0}
-  .masthead{order:1}
-  .rule-tt{order:1}
-  #scheduleSection{order:2;margin-top:14px!important;border-top:2px solid #111;padding-top:12px}
-  .lede-sec{order:3}
-  .page>section:not(#scheduleSection):not(.lede-sec){order:4}
-  .rule-tt2{order:5}
-  #scheduleSection .sec-head{margin-bottom:10px}
-  #scheduleSection .sec-head h2{font-size:14px}
+  @page{size:landscape;margin:8mm}
+  html,body{background:#fff!important;color:#111!important;overflow:visible!important;width:100%!important;height:auto!important}
+  body::after,.home-lock,.tl-tip,.toast{display:none!important}
+  .page{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;display:block!important}
+  .page>*{display:none!important;animation:none!important}
+  .page>#scheduleSection{display:block!important;margin:0!important;padding:0!important;border:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  #scheduleSection .sec-head{display:flex!important;margin:0 0 8px!important}
+  #scheduleSection .sec-head h2{font-size:12px!important}
   #scheduleSection .sec-hint{display:none!important}
-  .lang-row,.unit-groups,#addBtn,#shareBtn,#copyBtn,.view-actions,.drag-handle,.del,.add-window,.remove-window,.toast,.tl-tip,.day-card{display:none!important}
-  .scroll-x{overflow:visible!important;margin:0!important;padding:0!important}
-  #regTable th,#regTable td,#phaseTable th,#phaseTable td{position:static!important;left:auto!important;box-shadow:none!important;background:transparent!important}
-  .lede-in,.in-name,.in-num,.in-kind{border:none!important;background:transparent!important;color:#111!important;appearance:none!important;-webkit-appearance:none!important}
-  .in-kind{opacity:1!important}
-  section{margin-top:24px}
-  .masthead{padding-bottom:14px}
-  .stamp{width:105px;height:105px}
-  .lede-sec{margin-top:20px}
-  .lede{font-size:18px;max-width:none}
-  .timeline{--tl-label:112px;break-inside:avoid;page-break-inside:avoid;font-size:12px}
-  .phase-corner,.tl-phases{display:none!important}
-  .tl-weeks{height:28px}
-  .week-band span{font-size:10px;font-weight:600}
-  .tl-ruler{height:32px}
-  .tl-track{height:48px}
-  .tl-bar{top:12px;height:24px}
-  .tl-bar,.sw{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-  #regTable tr,#phaseTable tr{break-inside:avoid;page-break-inside:avoid}
-  #regTable thead,#phaseTable thead{display:table-header-group}
-  #regTable{font-size:11px}
-  #phaseTable{font-size:10px}
-  th,td{padding:6px 7px}
-  .window-warning{display:none!important}
-  .tally{break-inside:avoid;page-break-inside:avoid;padding-bottom:14px}
-  .fineprint{margin-top:8px}
+  #scheduleSection .timeline{display:block!important;--tl-label:102px;font-size:10px!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  #scheduleSection .tl-grid{display:grid!important}
+  #scheduleSection .phase-corner{display:flex!important}
+  #scheduleSection .tl-phases{display:block!important;height:22px!important}
+  #scheduleSection .tl-weeks{display:block!important;height:22px!important}
+  #scheduleSection .tl-ruler{display:block!important;height:25px!important}
+  #scheduleSection .week-band span{font-size:9px!important;font-weight:600}
+  #scheduleSection .tl-track{height:34px!important}
+  #scheduleSection .tl-bar{top:7px!important;height:20px!important}
+  #scheduleSection .tl-label{min-height:34px!important}
+  #scheduleSection .tl-bar,.sw{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  #scheduleSection .day-card{display:grid!important;margin-top:14px!important;padding:14px 16px!important;min-height:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  #scheduleSection .dc-day-num{font-size:22px!important}
+  #scheduleSection .dc-day-sub{font-size:9px!important}
+  #scheduleSection .dc-chip{padding:7px 10px!important;font-size:10px!important}
+  #scheduleSection .dc-total-fig{font-size:22px!important}
+  #scheduleSection .nav-btn{display:none!important}
+  #scheduleSection .schedule-actions,
+  #scheduleSection .view-actions{display:none!important}
 }
 
 /* ═══ language toggle — added ═══ */

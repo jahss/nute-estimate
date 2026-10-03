@@ -256,3 +256,17 @@ test('shared view actions sit under application windows, not grand total', () =>
   const tallyEnd = html.indexOf('</footer>', tally);
   assert.ok(actions > tallyEnd);
 });
+
+
+test('print is a single application-window sheet with pinned-day card', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /@page\{size:landscape;margin:8mm\}/);
+  assert.match(html, /\.page>\*\{display:none!important/);
+  assert.match(html, /\.page>#scheduleSection\{display:block!important/);
+  assert.match(html, /#scheduleSection \.phase-corner\{display:flex!important\}/);
+  assert.match(html, /#scheduleSection \.tl-phases\{display:block!important/);
+  assert.match(html, /#scheduleSection \.day-card\{display:grid!important/);
+  assert.match(html, /#scheduleSection \.schedule-actions,[\s\S]*#scheduleSection \.view-actions\{display:none!important\}/);
+});
