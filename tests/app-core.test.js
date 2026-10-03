@@ -231,3 +231,14 @@ test('shared view hides batching phases while editor keeps the section', () => {
   assert.match(html, /<section id="phaseSection">[\s\S]*<h2>Batching phases<\/h2>/);
   assert.match(html, /body\.view-mode #phaseSection\{display:none!important\}/);
 });
+
+
+test('grand total sits directly under nutrient register before the schedule', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const reg = html.indexOf('id="regTable"');
+  const tally = html.indexOf('<footer class="tally">');
+  const schedule = html.indexOf('id="scheduleSection"');
+  assert.ok(reg >= 0 && tally > reg && schedule > tally);
+});
