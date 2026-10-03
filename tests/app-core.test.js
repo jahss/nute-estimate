@@ -139,3 +139,29 @@ test('index wires the homepage PIN screen and session-only unlock', () => {
   assert.match(html, /NuteCore\.verifyHomepagePin\(/);
   assert.match(html, /#view=/);
 });
+
+
+test('weekBands groups the cycle into seven-day weeks with a partial final week', () => {
+  assert.deepEqual(Core.weekBands(15), [
+    {week:1,start:1,end:7},
+    {week:2,start:8,end:14},
+    {week:3,start:15,end:15}
+  ]);
+});
+
+test('index presents Estimate/Feed with weekly hero print timeline and movable day overlay', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /<title>Estimate\/Feed<\/title>/);
+  assert.match(html, /<h1>Estimate\/Feed<\/h1>/);
+  assert.match(html, /ESTIMATE \/ FEED/);
+  assert.match(html, /id="scheduleSection"/);
+  assert.match(html, /tl-weeks/);
+  assert.match(html, /week-band/);
+  assert.match(html, /under\.style\.width\s*=\s*W\s*\+\s*'px'/);
+  assert.match(html, /over\.style\.width\s*=\s*W\s*\+\s*'px'/);
+  assert.match(html, /\.unit-note\{[^}]*font-size:11px/);
+  assert.match(html, /@media print[\s\S]*#scheduleSection\{order:2/);
+  assert.match(html, /@media print[\s\S]*\.tl-phases\{display:none!important\}/);
+});
