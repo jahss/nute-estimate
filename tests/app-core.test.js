@@ -175,3 +175,17 @@ test('timeline labels expose Weeks blocks and a Days axis label above grid overl
   assert.match(html, /\.tl-phases,.tl-weeks,.tl-ruler\{[^}]*z-index:1/);
   assert.match(html, /label\.textContent='Week '\+w\.week/);
 });
+
+
+test('PWA shell exposes manifest, install action, and service worker registration', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /rel="manifest" href="manifest\.webmanifest"/);
+  assert.match(html, /rel="apple-touch-icon" href="icon-192\.png"/);
+  assert.match(html, /id="installBtn"/);
+  assert.match(html, /beforeinstallprompt/);
+  assert.match(html, /navigator\.serviceWorker\.register\('\.\/sw\.js'\)/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'), /"display"\s*:\s*"standalone"/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8'), /CACHE_NAME/);
+});
