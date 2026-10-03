@@ -497,6 +497,35 @@ body.view-mode .window-warning{display:none}
   .fineprint{font-size:9px;letter-spacing:.08em}
 }
 
+
+@media print{
+  @page{size:landscape;margin:10mm}
+  html,body{background:#fff!important;color:#111!important;overflow:visible!important}
+  body::after{display:none!important}
+  .page{max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
+  .page>*{animation:none!important}
+  .lang-row,.unit-groups,#addBtn,#shareBtn,#copyBtn,.view-actions,.drag-handle,.del,.add-window,.remove-window,.toast,.tl-tip,.day-card{display:none!important}
+  .scroll-x{overflow:visible!important;margin:0!important;padding:0!important}
+  #regTable th,#regTable td,#phaseTable th,#phaseTable td{position:static!important;left:auto!important;box-shadow:none!important;background:transparent!important}
+  .lede-in,.in-name,.in-num,.in-kind{border:none!important;background:transparent!important;color:#111!important;appearance:none!important;-webkit-appearance:none!important}
+  .in-kind{opacity:1!important}
+  section{margin-top:24px}
+  .masthead{padding-bottom:14px}
+  .stamp{width:105px;height:105px}
+  .lede-sec{margin-top:20px}
+  .lede{font-size:18px;max-width:none}
+  .timeline{--tl-label:100px;break-inside:avoid;page-break-inside:avoid}
+  .tl-bar,.sw{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  #regTable tr,#phaseTable tr{break-inside:avoid;page-break-inside:avoid}
+  #regTable thead,#phaseTable thead{display:table-header-group}
+  #regTable{font-size:11px}
+  #phaseTable{font-size:10px}
+  th,td{padding:6px 7px}
+  .window-warning{display:none!important}
+  .tally{break-inside:avoid;page-break-inside:avoid;padding-bottom:14px}
+  .fineprint{margin-top:8px}
+}
+
 /* ═══ language toggle — added ═══ */
 .lang-row{display:flex;justify-content:flex-end;margin-bottom:14px}
 .seg-lang button{min-width:56px}
