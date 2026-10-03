@@ -426,7 +426,7 @@ tr.invalid .tot{color:var(--ink-3)}
 .pin-flag{position:absolute;top:0;transform:translateX(-50%);background:var(--rust);color:var(--paper);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 6px 1px;white-space:nowrap}
 
 /* tooltip */
-.tl-tip{position:fixed;z-index:900;display:none;pointer-events:none;background:var(--paper);border:1px solid var(--ink);box-shadow:3px 4px 0 rgba(32,41,31,.16);padding:10px 12px;min-width:150px;max-width:250px}
+.tl-tip{position:fixed;z-index:900;display:none;pointer-events:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:3px 4px 0 rgba(32,41,31,.16);padding:10px 12px;min-width:150px;max-width:250px}
 .tip-h{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:7px;font-weight:600}
 .tip-r{display:flex;align-items:center;gap:8px;font-size:12px;padding:2px 0}
 .tip-r .dot{width:8px;height:8px;flex-shrink:0}
@@ -1037,7 +1037,7 @@ regBody.addEventListener('mouseout', e => {
 
 /* ---------------- timeline ---------------- */
 const tlEl = $('#timeline'), tipEl = $('#tlTip');
-let chartEl = null, crossEl = null;
+let chartEl = null, crossEl = null, stickyTipDay = null;
 
 function pickStep(D, W){
   const steps = [1,2,5,7,10,14,21,30,45,60,90,120,180,365];
@@ -1155,7 +1155,12 @@ function renderTimeline(){
 }
 
 /* hover / pin interactions */
-function hideHover(){ if (crossEl) crossEl.style.display = 'none'; tipEl.style.display = 'none'; }
+function hideHover(force=false){
+  if (!force && stickyTipDay != null) return;
+  if (crossEl) crossEl.style.display = 'none';
+  tipEl.style.display = 'none';
+  if (force) stickyTipDay = null;
+}
 function showTip(d, x, y){
   const mix = dayMix(d);
   let html = `<div class="tip-h">Day ${d} · ${fmtGal()} gal</div>`;
@@ -1170,6 +1175,7 @@ function showTip(d, x, y){
   tipEl.style.left = lx + 'px'; tipEl.style.top = ly + 'px';
 }
 tlEl.addEventListener('mousemove', e => {
+  if (stickyTipDay != null) return;
   if (!chartEl) return;
   const r = chartEl.getBoundingClientRect();
   if (e.clientX < r.left || e.clientX > r.right){ hideHover(); return; }
@@ -1178,7 +1184,7 @@ tlEl.addEventListener('mousemove', e => {
   if (crossEl){ crossEl.style.display = 'block'; crossEl.style.left = ((d - 0.5) / D * 100) + '%'; }
   showTip(d, e.clientX, e.clientY);
 });
-tlEl.addEventListener('mouseleave', hideHover);
+tlEl.addEventListener('mouseleave', () => hideHover());
 tlEl.addEventListener('click', e => {
   if (!chartEl) return;
   const r = chartEl.getBoundingClientRect();
@@ -1186,10 +1192,18 @@ tlEl.addEventListener('click', e => {
   const D = state.days;
   const d = Math.floor(clamp((e.clientX - r.left) / r.width, 0, 0.99999) * D) + 1;
   state.pinned = (state.pinned === d) ? null : d;
-  renderTimeline(); renderDayCard(); hideHover();
+  stickyTipDay = d;
+  renderTimeline(); renderDayCard();
+  if (crossEl){
+    crossEl.style.display = 'block';
+    crossEl.style.left = ((d - 0.5) / D * 100) + '%';
+  }
+  showTip(d, e.clientX, e.clientY);
 });
 document.addEventListener('pointerdown', e => {
-  if (!tlEl.contains(e.target)) hideHover();
+  if (stickyTipDay == null) return;
+  if (tlEl.contains(e.target) || tipEl.contains(e.target)) return;
+  hideHover(true);
 }, true);
 
 /* ---------------- day card ---------------- */

@@ -287,3 +287,16 @@ test('all actions live under application windows instead of grand total', () => 
   assert.ok(copy > tallyEnd && share > tallyEnd);
   assert.match(html, /body\.view-mode \.edit-actions\{display:none!important\}/);
 });
+
+
+test('timeline tooltip stays sticky after tap until outside pointerdown', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /let chartEl = null, crossEl = null, stickyTipDay = null/);
+  assert.match(html, /stickyTipDay = d;[\s\S]*renderTimeline\(\); renderDayCard\(\);[\s\S]*showTip\(d, e\.clientX, e\.clientY\)/);
+  assert.match(html, /if \(stickyTipDay != null\) return;[\s\S]*if \(!chartEl\) return;/);
+  assert.match(html, /if \(tlEl\.contains\(e\.target\) \|\| tipEl\.contains\(e\.target\)\) return;[\s\S]*hideHover\(true\)/);
+  assert.doesNotMatch(html, /renderTimeline\(\); renderDayCard\(\); hideHover\(\);/);
+  assert.match(html, /\.tl-tip\{[^}]*pointer-events:auto/);
+});
