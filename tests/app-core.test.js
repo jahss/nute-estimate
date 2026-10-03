@@ -165,3 +165,13 @@ test('index presents Estimate/Feed with weekly hero print timeline and movable d
   assert.match(html, /@media print[\s\S]*#scheduleSection\{order:2/);
   assert.match(html, /@media print[\s\S]*\.tl-phases\{display:none!important\}/);
 });
+
+
+test('timeline labels expose Weeks blocks and a Days axis label above grid overlays', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /const c2 = h\('div','tl-corner ax day-corner'\); c2\.textContent = 'Days'/);
+  assert.match(html, /\.tl-phases,.tl-weeks,.tl-ruler\{[^}]*z-index:1/);
+  assert.match(html, /label\.textContent='Week '\+w\.week/);
+});
