@@ -904,6 +904,14 @@ function updateRowOutputs(){
       const i = Number(line.dataset.winIndex);
       line.classList.toggle('invalid', !!ev[i] && !ev[i].ok);
     });
+    tr.querySelectorAll('.c-win .win-line[data-win-index]').forEach(line => {
+      const i = Number(line.dataset.winIndex), item = ev[i];
+      let warning = line.querySelector('.window-warning');
+      if (item && !item.ok){
+        if (!warning){ warning = h('span','window-warning'); line.appendChild(warning); }
+        warning.textContent = winReason(item.reason);
+      } else if (warning) warning.remove();
+    });
     const dv=$('.days-val',tr), dn=$('.days-note',tr), tot=$('.tot',tr), sub=$('.tot-sub',tr);
     dv.textContent = stats.activeDays + ' d';
     const bad = ev.filter(x => !x.ok);
@@ -1480,7 +1488,7 @@ if(!bootInvalid){
     document.documentElement.lang = (l === 'zh') ? 'zh-CN' : 'en';
     document.title = (l === 'zh') ? '养分批次台账' : 'Nutrient Batch Ledger';
     if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === l); });
-    try { localStorage.setItem('nbl-lang', l); } catch (e) {}
+    try { if (!document.body.classList.contains('view-mode')) localStorage.setItem('nbl-lang', l); } catch (e) {}
     renderLede();
     applyAll();
   }
