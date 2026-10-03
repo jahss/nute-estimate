@@ -1,0 +1,14 @@
+{
+  "name": "Estimate/Feed",
+  "short_name": "Estimate/Feed",
+  "description": "Hydroponic feed estimate and schedule",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F0E1",
+  "theme_color": "#20291F",
+  "icons": [
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
