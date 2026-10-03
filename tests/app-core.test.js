@@ -270,3 +270,20 @@ test('print is a single application-window sheet with pinned-day card', () => {
   assert.match(html, /#scheduleSection \.day-card\{display:grid!important/);
   assert.match(html, /#scheduleSection \.schedule-actions,[\s\S]*#scheduleSection \.view-actions\{display:none!important\}/);
 });
+
+
+test('all actions live under application windows instead of grand total', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const tally = html.indexOf('<footer class="tally">');
+  const tallyEnd = html.indexOf('</footer>', tally);
+  const schedule = html.indexOf('id="scheduleSection"');
+  const copy = html.indexOf('id="copyBtn"');
+  const share = html.indexOf('id="shareBtn"');
+  const print = html.indexOf('id="printBtn"');
+  const link = html.indexOf('id="copyLinkBtn"');
+  assert.ok(copy > schedule && share > schedule && print > schedule && link > schedule);
+  assert.ok(copy > tallyEnd && share > tallyEnd);
+  assert.match(html, /body\.view-mode \.edit-actions\{display:none!important\}/);
+});
