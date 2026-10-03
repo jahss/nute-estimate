@@ -177,15 +177,16 @@ test('timeline labels expose Weeks blocks and a Days axis label above grid overl
 });
 
 
-test('PWA shell exposes manifest, install action, and service worker registration', () => {
+test('PWA install page exposes manifest, install action, and service worker registration', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'install.html'), 'utf8');
   assert.match(html, /rel="manifest" href="manifest\.webmanifest"/);
   assert.match(html, /rel="apple-touch-icon" href="icon-192\.png"/);
   assert.match(html, /id="installBtn"/);
   assert.match(html, /beforeinstallprompt/);
   assert.match(html, /navigator\.serviceWorker\.register\('\.\/sw\.js'\)/);
+  assert.match(html, /Share → Add to Home Screen/);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'), /"display"\s*:\s*"standalone"/);
-  assert.match(fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8'), /CACHE_NAME/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8'), /\.\/install\.html/);
 });
