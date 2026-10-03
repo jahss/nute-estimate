@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Interactive nutrient batch ledger and feed-phase calculator.">
   <title>Nutrient Batch Ledger</title>
+  <script>
+  (function(){
+    var isView = location.hash.indexOf('#view=') === 0;
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem('nbl-home-unlocked') === '1'; } catch (e) {}
+    if (!isView && !unlocked) document.documentElement.classList.add('home-locked');
+  })();
+  </script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
 /* vietnamese */
@@ -261,6 +269,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
 .page{max-width:1120px;margin:0 auto;padding:54px 44px 60px}
+.home-lock{display:none;min-height:100vh;padding:28px;align-items:center;justify-content:center;background:var(--paper)}
+.home-locked .home-lock{display:flex}
+.home-locked body{overflow:hidden}
+.home-locked .page{display:none}
+.home-lock-card{width:min(430px,100%);border:2px solid var(--ink);background:var(--card);padding:34px 30px 30px;box-shadow:6px 7px 0 rgba(32,41,31,.12)}
+.home-lock-kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);font-weight:600;margin-bottom:10px}
+.home-lock h1{font-size:clamp(32px,8vw,46px);margin-bottom:10px}
+.home-lock-copy{font-family:var(--serif);font-size:16px;color:var(--ink-2);margin-bottom:22px}
+.home-lock-form{display:flex;gap:9px;align-items:stretch}
+.home-lock-input{min-width:0;flex:1;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:600 18px/1 var(--mono);letter-spacing:.12em;padding:12px 13px}
+.home-lock-input:focus{outline:2px solid var(--rust);outline-offset:1px}
+.home-lock-error{min-height:20px;margin-top:10px;color:var(--rust);font-size:11px;letter-spacing:.04em}
+.home-lock-note{margin-top:20px;padding-top:16px;border-top:1px dashed var(--line-2);font-size:10px;line-height:1.6;color:var(--ink-3)}
+
 .page>*{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
 .page>*:nth-child(2){animation-delay:.05s}.page>*:nth-child(3){animation-delay:.1s}
 .page>*:nth-child(4){animation-delay:.16s}.page>*:nth-child(5){animation-delay:.22s}
@@ -557,6 +579,19 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
   </style>
 </head>
 <body>
+<div class="home-lock" id="homeLock" aria-labelledby="homeLockTitle">
+  <div class="home-lock-card">
+    <div class="home-lock-kicker">Private editor</div>
+    <h1 id="homeLockTitle">Access code</h1>
+    <p class="home-lock-copy">Enter the code to open the nutrient calculator editor.</p>
+    <form class="home-lock-form" id="homeLockForm">
+      <input class="home-lock-input" id="homePin" type="password" inputmode="numeric" autocomplete="off" aria-label="Access code">
+      <button class="btn" type="submit">Unlock</button>
+    </form>
+    <div class="home-lock-error" id="homeLockError" role="status" aria-live="polite"></div>
+    <div class="home-lock-note">This is a lightweight browser-side lock. Shared read-only view links open without this code.</div>
+  </div>
+</div>
 <div class="page">
 <!-- language toggle (added) -->
 <div class="lang-row">
@@ -1294,6 +1329,33 @@ function lockViewMode(){
 function renderInvalidSnapshot(){
   document.body.innerHTML='<main class="invalid-snapshot"><h1>Snapshot unavailable</h1><p>This snapshot link is invalid or unsupported.</p><a class="btn" href="./">Open editor</a></main>';
 }
+
+function readHomepageUnlock(){
+  try { return sessionStorage.getItem('nbl-home-unlocked') === '1'; }
+  catch(e){ return false; }
+}
+function initHomepageLock(){
+  const locked = NuteCore.requiresHomepageLock(location.hash, readHomepageUnlock());
+  document.documentElement.classList.toggle('home-locked', locked);
+  if (!locked) return;
+  const form=$('#homeLockForm'), input=$('#homePin'), error=$('#homeLockError');
+  if (!form || !input) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!NuteCore.verifyHomepagePin(input.value)){
+      if (error) error.textContent='Incorrect code';
+      input.select();
+      return;
+    }
+    try { sessionStorage.setItem('nbl-home-unlocked','1'); } catch(e) {}
+    if (error) error.textContent='';
+    input.value='';
+    document.documentElement.classList.remove('home-locked');
+    daysIn.focus();
+  });
+  requestAnimationFrame(() => input.focus());
+}
+initHomepageLock();
 
 /* ---------------- boot ---------------- */
 let rz;
