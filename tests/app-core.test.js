@@ -126,3 +126,16 @@ test('homepage PIN accepts only the configured code', () => {
   assert.equal(Core.verifyHomepagePin('1800910'), false);
   assert.equal(Core.verifyHomepagePin(' 1800911 '), false);
 });
+
+
+test('index wires the homepage PIN screen and session-only unlock', () => {
+  const fs = require('node:fs');
+  const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /id="homeLockForm"/);
+  assert.match(html, /id="homePin"/);
+  assert.match(html, /sessionStorage\.getItem\('nbl-home-unlocked'\)/);
+  assert.match(html, /sessionStorage\.setItem\('nbl-home-unlocked','1'\)/);
+  assert.match(html, /NuteCore\.requiresHomepageLock\(location\.hash,/);
+  assert.match(html, /NuteCore\.verifyHomepagePin\(/);
+  assert.match(html, /#view=/);
+});
