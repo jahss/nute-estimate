@@ -175,6 +175,14 @@
     }
   }
 
+  function verifyHomepagePin(value){
+    return String(value) === '1800911';
+  }
+
+  function requiresHomepageLock(hash, sessionUnlocked){
+    return !String(hash || '').startsWith('#view=') && !sessionUnlocked;
+  }
+
   function parseViewHash(hash){
     const raw=String(hash || '');
     if (!raw.startsWith('#view=')) return {mode:'edit'};
@@ -183,5 +191,5 @@
     return {mode:'view',snapshot:decodeSnapshot(encoded)};
   }
 
-  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases, createSnapshot, encodeSnapshot, decodeSnapshot, parseViewHash};
+  return {sortWindowsByStart, evaluateWindows, activeWindowAt, nutrientStats, computePhases, createSnapshot, encodeSnapshot, decodeSnapshot, parseViewHash, verifyHomepagePin, requiresHomepageLock};
 });
