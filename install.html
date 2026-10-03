@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#20291f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Estimate/Feed">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Install Estimate/Feed</title>
+  <style>
+    :root{--paper:#f5f0e1;--ink:#20291f;--rust:#b4552d;--line:#b9b3a2}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink)}
+    body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;display:grid;place-items:center;min-height:100vh;padding:24px}
+    main{width:min(520px,100%);border:2px solid var(--ink);padding:30px;background:#f8f3e6;box-shadow:7px 8px 0 rgba(32,41,31,.12)}
+    .kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);font-weight:700}
+    .brand{display:flex;align-items:center;gap:16px;margin:12px 0 8px}
+    .brand img{width:72px;height:72px;border-radius:14px}
+    h1{font-family:Georgia,serif;font-size:38px;line-height:1;margin:0}
+    p{line-height:1.65;color:#465044}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+    button,a{appearance:none;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:12px 16px;font:600 12px/1.2 inherit;letter-spacing:.05em;text-decoration:none;cursor:pointer}
+    a.secondary{background:transparent;color:var(--ink)}
+    .ios{margin-top:22px;border-top:1px dashed var(--line);padding-top:18px;font-size:12px}
+    .status{min-height:20px;margin-top:12px;font-size:11px;color:var(--rust)}
+  </style>
+</head>
+<body>
+<main>
+  <div class="kicker">Home Screen App</div>
+  <div class="brand"><img src="icon-192.png" alt=""><h1>Estimate/Feed</h1></div>
+  <p>Install the feed estimator as a standalone app. The app shell is cached so it can reopen even when the network is unavailable.</p>
+  <div class="actions">
+    <button id="installBtn" type="button">Install App</button>
+    <a class="secondary" id="openBtn" href="./">Open Estimate/Feed</a>
+  </div>
+  <div class="ios"><strong>iPhone / iPad:</strong> tap <strong>Share → Add to Home Screen</strong>. Apple requires this step from the browser.</div>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+</main>
+<script>
+'use strict';
+const statusEl=document.getElementById('status');
+const installBtn=document.getElementById('installBtn');
+const openBtn=document.getElementById('openBtn');
+const viewHash=location.hash.startsWith('#view=') ? location.hash : '';
+openBtn.href='./'+viewHash;
+
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  statusEl.textContent='Ready to install.';
+});
+
+installBtn.addEventListener('click', async () => {
+  const standalone=window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+  if (standalone){ statusEl.textContent='Estimate/Feed is already installed.'; return; }
+  if (deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    try{
+      const choice=await deferredInstallPrompt.userChoice;
+      statusEl.textContent=choice.outcome==='accepted' ? 'Install started.' : 'Install canceled.';
+    }catch(e){ statusEl.textContent='Use your browser menu to install the app.'; }
+    deferredInstallPrompt=null;
+    return;
+  }
+  const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  statusEl.textContent=isiOS
+    ? 'Tap Share → Add to Home Screen.'
+    : 'Open your browser menu and choose Install app or Add to Home screen.';
+});
+
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
