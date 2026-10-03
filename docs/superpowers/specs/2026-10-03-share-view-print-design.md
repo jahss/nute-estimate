@@ -36,6 +36,78 @@ The app is a single static HTML document deployed on GitHub Pages. Application s
 
 The new feature should preserve that architecture. Snapshot generation and restoration happen entirely in the browser.
 
+## Multi-Window Nutrient Model
+
+Each nutrient is a single mixing item with one nutrient-level identity and one or more chronological application windows.
+
+Nutrient-level fields:
+- name
+- kind (dry or liquid)
+- color
+- manual nutrient order
+
+Window-level fields:
+- rate
+- start day
+- end day
+
+A nutrient therefore uses this conceptual shape:
+
+```text
+nutrient
+  name
+  kind
+  color
+  windows[]
+    rate
+    start
+    end
+```
+
+The current single-window state migrates directly to a one-item `windows[]` array.
+
+### Mixing order versus schedule order
+
+The nutrient array order is the user-controlled **mixing order**. It is manually reordered using the existing nutrient drag interaction and must never be automatically changed by window dates.
+
+Within one nutrient, windows are schedule segments rather than mixing steps. They may be automatically sorted by start day for display and calculation consistency.
+
+### Window rules
+
+- A nutrient must always have at least one window row available in the editor.
+- **Add window** appends a new window inline beneath that nutrient.
+- Each window may use a different rate.
+- Gaps between windows are valid and mean the nutrient is paused.
+- Adjacent windows are valid, such as days 1–14 followed by days 15–28.
+- Windows for the same nutrient may not overlap.
+- An overlapping window is visibly invalid and excluded from calculations until corrected.
+- The app must not silently merge, trim, or rewrite overlapping windows.
+- Changing cycle length may temporarily make a window invalid; invalid windows remain visible for correction rather than being deleted.
+- Rate must be finite and zero or greater.
+- All windows for a nutrient share the nutrient's dry/liquid type.
+
+### Register interaction
+
+The first window remains on the primary nutrient row. Additional windows appear as compact indented rows directly beneath it.
+
+The nutrient row contains:
+- reorder handle
+- nutrient name
+- dry/liquid type
+- first window rate/start/end
+- aggregate days used
+- aggregate total required
+- Add window
+- nutrient delete
+
+Additional window rows contain:
+- rate
+- start
+- end
+- remove window
+
+Additional window rows do not repeat nutrient name, color, type, nutrient reorder controls, aggregate totals, or nutrient delete.
+
 ## Product Model
 
 The application gains two runtime modes:
@@ -47,8 +119,9 @@ Normal visits without a valid snapshot open the existing editor.
 Edit mode retains:
 - nutrient add/delete
 - drag reorder
-- rate/type editing
-- window editing
+- nutrient type editing
+- multi-window rate/window editing
+- inline Add window and remove-window controls
 - language controls
 - dry/liquid display-unit controls
 - all current interactive timeline behavior
@@ -87,16 +160,17 @@ dryUnit
 liquidUnit
 nutrients[]
   name
-  rate
   kind
-  start
-  end
   color
+  windows[]
+    rate
+    start
+    end
 ```
 
-The nutrient array order is significant and must be preserved.
+The nutrient array order is significant because it is the mixing order and must be preserved exactly. Window arrays represent schedule segments; the decoder may normalize their chronological display order by start day because window order is not mixing order.
 
-Derived values such as total required, phases, daily mixes, timeline geometry, and grand totals are recomputed on load from the frozen inputs.
+Derived values such as total required, active days, phases, daily mixes, timeline geometry, and grand totals are recomputed on load from the frozen inputs.
 
 Internal runtime-only fields such as temporary drag state or pinned hover state are not required in the snapshot.
 
@@ -165,10 +239,12 @@ Snapshot decoding must validate:
 - supported liquid unit
 - nutrient array shape
 - nutrient names as strings
-- finite non-negative rates
 - kind as dry or liquid
-- finite start/end values
 - valid color strings within the app's accepted representation
+- non-empty window arrays
+- finite non-negative window rates
+- finite window start/end values
+- no overlapping valid windows within the same nutrient
 
 The decoder should normalize safe values where practical but reject malformed payloads that cannot represent a valid formula.
 
@@ -189,8 +265,9 @@ View mode should reuse the existing rendering functions and calculations rather 
 Editing controls become non-interactive presentation:
 
 - nutrient names render as text
+- each nutrient renders its one or more rates/windows as read-only schedule lines
 - rates render with frozen `g/gal` or `mL/gal`
-- windows render as text
+- gaps remain visible as pauses in the timeline
 - add/delete controls are hidden
 - reorder handles are hidden
 - editable day/gallon inputs render as text
@@ -235,10 +312,10 @@ Target presentation:
 
 2. Nutrient schedule
    - nutrient
-   - rate
-   - window
-   - days used
-   - total required
+   - one line per rate/window segment
+   - aggregate days used
+   - aggregate total required
+   - nutrient rows remain in saved mixing order
 
 3. Application windows
    - existing timeline reformatted for print width
@@ -264,15 +341,20 @@ The print layout should prioritize readability over exact screen layout.
 
 ## State and Calculation Rules
 
-Snapshot mode must continue to use the same existing calculation functions for:
-- effective nutrient windows
-- row totals
-- phase boundaries
-- daily mixes
-- dry totals
-- liquid totals
+The editor, snapshot view, and print report must share one calculation path.
 
-Snapshot support must not introduce a second calculation path.
+For a nutrient with multiple windows:
+
+- **Active days** are the sum of valid window lengths, not the span from the earliest start to latest end.
+- **Nutrient total required** is the sum of each valid window's `rate × gallons/day × window days`.
+- **Day mix** includes a nutrient when exactly one valid window covers that day, using that window's rate.
+- **Timeline** renders one nutrient row with one bar per valid window; gaps show pauses.
+- **Phase boundaries** occur whenever any valid window starts or ends. A rate change represented by adjacent windows therefore creates a phase boundary even when the nutrient stays continuously active.
+- **Batching phases** use the rate from the window active during that phase.
+- **Dry and liquid grand totals** sum all valid windows according to the nutrient's type.
+- Invalid overlapping windows are excluded from calculations until corrected.
+
+Snapshot mode must use these same functions rather than introducing a second calculation path.
 
 ## Language Behavior
 
@@ -337,18 +419,32 @@ Required test coverage:
    - view mode does not expose their selectors
 
 3. **Nutrient order**
-   - reordered nutrients round-trip in the same order
+   - reordered nutrients round-trip in the same mixing order
+   - window chronology never changes nutrient order
 
-4. **Malformed snapshot**
+4. **Multiple windows**
+   - one nutrient can change rate across adjacent windows
+   - gaps create pauses
+   - active-day totals sum window lengths
+   - nutrient totals sum all valid window amounts
+   - day-level rate lookup uses the matching window
+   - phase boundaries include window starts, ends, and adjacent rate changes
+
+5. **Overlap validation**
+   - overlapping windows on the same nutrient are visibly invalid
+   - invalid overlapping windows are excluded from calculations
+   - overlaps are never silently merged or trimmed
+
+6. **Malformed snapshot**
    - bad encoding, malformed JSON, missing required fields, and unsupported versions show the invalid-snapshot state
 
-5. **Normal editor regression**
+7. **Normal editor regression**
    - a normal URL still boots into the editable calculator with the existing defaults and controls
 
-6. **Read-only regression**
+8. **Read-only regression**
    - a valid view URL does not expose add/delete/reorder/input controls
 
-7. **Print regression**
+9. **Print regression**
    - print CSS removes interactive controls and sticky/scroll behavior while keeping report sections visible
 
 ## Implementation Boundaries
@@ -370,7 +466,11 @@ The feature is complete when:
 - subsequent edits in the source editor do not affect the shared link
 - the snapshot opens read-only
 - language and dry/liquid display units are frozen
-- nutrient order is preserved
+- nutrient mixing order is preserved
+- each nutrient can contain multiple rate/window segments
+- gaps between windows represent pauses
+- overlapping windows are rejected from calculations until corrected
+- timeline, day mix, batching phases, totals, snapshots, and print all use the multi-window model
 - malformed snapshots fail visibly
 - normal visits remain editable
 - Print / Save PDF produces a clean report layout without editor controls
