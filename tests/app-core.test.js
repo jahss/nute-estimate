@@ -242,3 +242,17 @@ test('grand total sits directly under nutrient register before the schedule', ()
   const schedule = html.indexOf('id="scheduleSection"');
   assert.ok(reg >= 0 && tally > reg && schedule > tally);
 });
+
+
+test('shared view actions sit under application windows, not grand total', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const tally = html.indexOf('<footer class="tally">');
+  const schedule = html.indexOf('id="scheduleSection"');
+  const actions = html.indexOf('class="view-actions schedule-actions"');
+  const phase = html.indexOf('id="phaseSection"');
+  assert.ok(tally >= 0 && schedule > tally && actions > schedule && (phase < 0 || actions < phase));
+  const tallyEnd = html.indexOf('</footer>', tally);
+  assert.ok(actions > tallyEnd);
+});

@@ -470,6 +470,7 @@ tfoot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;font
 .toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,14px);background:var(--ink);color:var(--paper);font-size:12px;letter-spacing:.08em;padding:11px 20px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:1000}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .view-actions{display:none;align-items:center;gap:8px;flex-wrap:wrap}
+.schedule-actions{margin-top:18px;justify-content:flex-end}
 body.view-mode .view-actions{display:flex}
 body.view-mode .lang-row,
 body.view-mode .unit-groups,
@@ -745,10 +746,7 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       Copy summary
     </button>
     <button class="btn btn-ghost" id="shareBtn">Share View</button>
-    <div class="view-actions">
-      <button class="btn btn-ghost" id="printBtn">Print / Save PDF</button>
-      <button class="btn btn-ghost" id="copyLinkBtn">Copy Link</button>
-    </div>
+
   </footer>
   </section>
 
@@ -763,6 +761,10 @@ html[lang="zh-CN"] .tip-e{font-style:normal}
       <div><span class="dc-day-num">Day 1</span><span class="dc-day-sub">of 63 · 300 gal</span></div>
       <button class="nav-btn" id="dayNext" aria-label="Next day"><svg width="9" height="12" viewBox="0 0 9 12" fill="none"><path d="M1.5 1 7 6l-5.5 5" stroke="currentColor" stroke-width="1.6"></path></svg></button>
     </div><div class="dc-mix"><span class="dc-chip"><span class="sw" style="background:#2F6B3F"></span><b>A</b> 6 g/gal × 300 gal <span class="dc-amt">1,800 g</span></span><span class="dc-chip"><span class="sw" style="background:#B4552D"></span><b>B</b> 3 g/gal × 300 gal <span class="dc-amt">900 g</span></span><span class="dc-chip"><span class="sw" style="background:#6D3B52"></span><b>R 修复</b> 0.2 g/gal × 300 gal <span class="dc-amt">60 g</span></span></div><div class="dc-total"><span class="dc-total-cap">Daily total</span><span class="dc-total-fig">2,760 g</span></div></div>
+    <div class="view-actions schedule-actions">
+      <button class="btn btn-ghost" id="printBtn">Print / Save PDF</button>
+      <button class="btn btn-ghost" id="copyLinkBtn">Copy Link</button>
+    </div>
   </section>
 
   <section id="phaseSection">
